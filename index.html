@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur DESP 2014/68/UE - v2.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #111827;
+            background: #f5f5f5;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 380px;
+            min-height: 100vh;
+            gap: 0;
+        }
+
+        /* ============ SIDEBAR ============ */
+        .sidebar {
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem 1.5rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #111827;
+        }
+
+        .version {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            background: #f3f4f6;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 0.25rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: #fafafa;
+        }
+
+        .nav-item.active {
+            background: #f5f6ff;
+            border-left-color: #6366f1;
+        }
+
+        .nav-item.completed {
+            background: #fafafa;
+        }
+
+        .nav-item.completed::after {
+            content: '✓';
+            position: absolute;
+            right: 1.5rem;
+            color: #10b981;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+            opacity: 0.4;
+            transition: opacity 0.15s ease;
+        }
+
+        .nav-item.active .nav-icon,
+        .nav-item.completed .nav-icon {
+            opacity: 1;
+        }
+
+        .nav-content {
+            flex: 1;
+        }
+
+        .nav-label {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 0.15rem;
+        }
+
+        .nav-value {
+            font-size: 0.9rem;
+            color: #d1d5db;
+            font-weight: 500;
+        }
+
+        .nav-item.completed .nav-value,
+        .nav-item.active .nav-value {
+            color: #1f2937;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .btn-reset {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #111827;
+        }
+
+        .btn-reset:hover {
+            background: #fafafa;
+            border-color: #d1d5db;
+        }
+
+        /* ============ MAIN CONTENT ============ */
+        .main-content {
+            padding: 2.5rem 3rem;
+            overflow-y: auto;
+            background: #fafafa;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .card-header {
+            padding: 1.75rem 2rem;
+            border-bottom: 1px solid #f3f4f6;
+            background: #fafafa;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #111827;
+        }
+
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* ============ OPTIONS GRID ============ */
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .option-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .option-card:hover {
+            border-color: #6366f1;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .option-card.selected {
+            border-color: #6366f1;
+            background: #f5f6ff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+        }
+
+        .option-card-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: linear-gradient(to bottom, #fafafa 0%, white 100%);
+        }
+
+        .option-card.selected .option-card-header {
+            background: linear-gradient(to bottom, #f5f6ff 0%, white 100%);
+        }
+
+        .option-icon {
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #111827;
+        }
+
+        .option-description {
+            font-size: 0.8rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .option-card-footer {
+            padding: 0.75rem 1.5rem;
+            background: #f5f6ff;
+            border-top: 1px solid #e0e7ff;
+            font-size: 0.75rem;
+            color: #6366f1;
+            font-weight: 500;
+            display: none;
+        }
+
+        .option-card.selected .option-card-footer {
+            display: block;
+        }
+
+        /* ============ INPUTS ============ */
+        .input-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .input-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-label-text {
+            font-weight: 600;
+            color: #111827;
+            font-size: 0.875rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.875rem 3.5rem 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: white;
+            font-weight: 500;
+            color: #111827;
+            font-feature-settings: 'tnum' 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .input-field:hover {
+            border-color: #d1d5db;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
+        }
+
+        .input-field.error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .input-field::placeholder {
+            color: #d1d5db;
+            font-weight: 400;
+        }
+
+        .input-unit {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-weight: 600;
+            pointer-events: none;
+            font-size: 0.875rem;
+            background: white;
+            padding-left: 0.5rem;
+        }
+
+        .input-info {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-top: 0.4rem;
+        }
+
+        .input-error {
+            font-size: 0.8rem;
+            color: #ef4444;
+            margin-top: 0.4rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .input-error.visible {
+            display: block;
+        }
+
+        /* ============ INFO BOXES ============ */
+        .info-box {
+            background: #fafafa;
+            border-left: 3px solid #6366f1;
+            padding: 1rem 1.25rem;
+            border-radius: 6px;
+            margin: 1.5rem 0;
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: #111827;
+            font-size: 0.9rem;
+        }
+
+        .info-box-text {
+            font-size: 0.85rem;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        /* ============ BUTTONS ============ */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #111827;
+            color: white;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-primary:hover {
+            background: #000000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #111827;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            background: #fafafa;
+            border-color: #d1d5db;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        /* ============ CHECKBOXES ============ */
+        .checkbox-group {
+            margin: 1.5rem 0;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 1rem 1.25rem;
+            background: #fafafa;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 2px solid transparent;
+        }
+
+        .checkbox-item:hover {
+            background: white;
+            border-color: #e5e7eb;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 1rem;
+            margin-top: 0.2rem;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #6366f1;
+        }
+
+        .checkbox-label {
+            flex: 1;
+        }
+
+        .checkbox-title {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.2rem;
+            font-size: 0.9rem;
+        }
+
+        .checkbox-description {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        /* ============ RESULT PANEL ============ */
+        .result-panel {
+            background: white;
+            border-left: 1px solid #e5e7eb;
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: none;
+        }
+
+        .result-panel.visible {
+            display: block;
+        }
+
+        .result-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-preview-header h3 {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.65rem;
+            background: #fef3c7;
+            color: #92400e;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .result-category-preview {
+            background: linear-gradient(135deg, #f5f6ff 0%, #e0e7ff 100%);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border: 2px solid #e0e7ff;
+        }
+
+        .category-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .category-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6366f1;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4338ca;
+            font-feature-settings: 'tnum' 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .result-summary {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.625rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row.highlighted {
+            background: white;
+            margin: 0.5rem -0.5rem -0.5rem;
+            padding: 0.75rem 0.5rem;
+            border-radius: 6px;
+            border: none;
+        }
+
+        .summary-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .summary-value {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #111827;
+            font-feature-settings: 'tnum' 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .summary-row.highlighted .summary-value {
+            color: #6366f1;
+            font-size: 0.95rem;
+        }
+
+        .result-next-step {
+            display: flex;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #fffbeb;
+            border-radius: 8px;
+            border: 1px solid #fef3c7;
+        }
+
+        .hint-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .hint-text {
+            font-size: 0.8rem;
+            color: #92400e;
+            line-height: 1.4;
+        }
+
+        .export-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .export-section h4 {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-export {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #111827;
+        }
+
+        .btn-export:hover {
+            background: #fafafa;
+            border-color: #d1d5db;
+        }
+
+        /* ============ FINAL RESULT DISPLAY ============ */
+        .result-card {
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border: 2px solid;
+            background: white;
+        }
+
+        .result-art43 { border-color: #06b6d4; }
+        .result-art43 .result-title { color: #06b6d4; }
+        .result-cat1 { border-color: #10b981; }
+        .result-cat1 .result-title { color: #10b981; }
+        .result-cat2 { border-color: #f59e0b; }
+        .result-cat2 .result-title { color: #f59e0b; }
+        .result-cat3 { border-color: #f97316; }
+        .result-cat3 .result-title { color: #f97316; }
+        .result-cat4 { border-color: #ef4444; }
+        .result-cat4 .result-title { color: #ef4444; }
+        .result-error { border-color: #ef4444; }
+        .result-error .result-title { color: #ef4444; }
+
+        .result-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.3px;
+        }
+
+        .result-details {
+            background: white;
+            border-radius: 10px;
+            padding: 0;
+            margin-top: 1.5rem;
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.875rem 1.25rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #111827;
+            font-size: 0.875rem;
+            font-feature-settings: 'tnum' 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ============ UTILITIES ============ */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ============ ANIMATIONS ============ */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .card.reverse-anim {
+            animation: slideInLeft 0.3s ease;
+        }
+
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 1200px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid #e5e7eb;
+                height: auto;
+                position: relative;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                overflow-x: auto;
+                padding: 0.5rem 0;
+            }
+
+            .nav-item {
+                flex-direction: column;
+                min-width: 120px;
+                text-align: center;
+                align-items: center;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+            }
+
+            .nav-item.active {
+                border-left: none;
+                border-bottom-color: #6366f1;
+            }
+
+            .nav-item.completed::after {
+                position: static;
+                margin-top: 0.25rem;
+            }
+
+            .result-panel {
+                border-left: none;
+                border-top: 1px solid #e5e7eb;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+            }
+
+            .option-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .card-header {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .card-body {
+                padding: 1.5rem;
+            }
+
+            .sidebar-header {
+                padding: 1.5rem 1rem;
+            }
+        }
+
+        /* ============ KEYBOARD NAVIGATION ============ */
+        .input-field:focus,
+        .btn:focus,
+        .option-card:focus {
+            outline: 2px solid #6366f1;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- ============ SIDEBAR ============ -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>DESP Calculator</h1>
+                <span class="version">v2.0</span>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-item active" data-step="1" onclick="goToStep(1)">
+                    <span class="nav-icon">🛢️</span>
+                    <div class="nav-content">
+                        <div class="nav-label">Type</div>
+                        <div class="nav-value" id="nav-type">-</div>
+                    </div>
+                </div>
+                <div class="nav-item" data-step="2" onclick="goToStep(2)">
+                    <span class="nav-icon">💧</span>
+                    <div class="nav-content">
+                        <div class="nav-label">Fluide</div>
+                        <div class="nav-value" id="nav-fluid">-</div>
+                    </div>
+                </div>
+                <div class="nav-item" data-step="3" onclick="goToStep(3)">
+                    <span class="nav-icon">🔴</span>
+                    <div class="nav-content">
+                        <div class="nav-label">Groupe</div>
+                        <div class="nav-value" id="nav-group">-</div>
+                    </div>
+                </div>
+                <div class="nav-item" data-step="4" onclick="goToStep(4)">
+                    <span class="nav-icon">⚙️</span>
+                    <div class="nav-content">
+                        <div class="nav-label">Paramètres</div>
+                        <div class="nav-value" id="nav-params">-</div>
+                    </div>
+                </div>
+                <div class="nav-item" data-step="5" onclick="goToStep(5)">
+                    <span class="nav-icon">⚠️</span>
+                    <div class="nav-content">
+                        <div class="nav-label">Cas particuliers</div>
+                        <div class="nav-value" id="nav-special">-</div>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button class="btn-reset" onclick="resetTool()">
+                    <span>🔄</span> Recommencer
+                </button>
+            </div>
+        </aside>
+
+        <!-- ============ MAIN CONTENT ============ -->
+        <main class="main-content">
+            <!-- Step 1: Equipment Type -->
+            <div id="step1" class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Type d'équipement</h2>
+                    <p class="card-subtitle">Sélectionnez le type de votre équipement sous pression</p>
+                </div>
+                <div class="card-body">
+                    <div class="option-grid">
+                        <div class="option-card" data-value="vessel" data-step="1" tabindex="0">
+                            <div class="option-card-header">
+                                <span class="option-icon">🛢️</span>
+                                <div class="option-content">
+                                    <div class="option-title">Récipient</div>
+                                    <div class="option-description">Enveloppe conçue pour contenir des fluides sous pression</div>
+                                </div>
+                            </div>
+                            <div class="option-card-footer">Sélectionné ✓</div>
+                        </div>
+                        <div class="option-card" data-value="piping" data-step="1" tabindex="0">
+                            <div class="option-card-header">
+                                <span class="option-icon">🔧</span>
+                                <div class="option-content">
+                                    <div class="option-title">Tuyauterie</div>
+                                    <div class="option-description">Conduits destinés au transport de fluides</div>
+                                </div>
+                            </div>
+                            <div class="option-card-footer">Sélectionné ✓</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Fluid Type -->
+            <div id="step2" class="card hidden">
+                <div class="card-header">
+                    <h2 class="card-title">Type de fluide</h2>
+                    <p class="card-subtitle">Quel est l'état du fluide contenu ou transporté ?</p>
+                </div>
+                <div class="card-body">
+                    <div class="option-grid">
+                        <div class="option-card" data-value="gas" data-step="2" tabindex="0">
+                            <div class="option-card-header">
+                                <span class="option-icon">💨</span>
+                                <div class="option-content">
+                                    <div class="option-title">Gaz</div>
+                                    <div class="option-description">Pression de vapeur > 0,5 bar au-dessus de la pression atmosphérique</div>
+                                </div>
+                            </div>
+                            <div class="option-card-footer">Sélectionné ✓</div>
+                        </div>
+                        <div class="option-card" data-value="liquid" data-step="2" tabindex="0">
+                            <div class="option-card-header">
+                                <span class="option-icon">💧</span>
+                                <div class="option-content">
+                                    <div class="option-title">Liquide</div>
+                                    <div class="option-description">Tous les fluides qui ne répondent pas à la définition de "gaz"</div>
+                                </div>
+                            </div>
+                            <div class="option-card-footer">Sélectionné ✓</div>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="prevStep(2)">← Retour</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Fluid Group -->
+            <div id="step3" class="card hidden">
+                <div class="card-header">
+                    <h2 class="card-title">Groupe de fluide</h2>
+                    <p class="card-subtitle">À quel groupe appartient votre fluide ?</p>
+                </div>
+                <div class="card-body">
+                    <div class="option-grid">
+                        <div class="option-card" data-value="group1" data-step="3" tabindex="0">
+                            <div class="option-card-header">
+                                <span class="option-icon">🔴</span>
+                                <div class="option-content">
+                                    <div class="option-title">Groupe 1 (Dangereux)</div>
+                                    <div class="option-description">Explosible, inflammable, toxique, comburant</div>
+                                </div>
+                            </div>
+                            <div class="option-card-footer">Sélectionné ✓</div>
+                        </div>
+                        <div class="option-card" data-value="group2" data-step="3" tabindex="0">
+                            <div class="option-card-header">
+                                <span class="option-icon">🟢</span>
+                                <div class="option-content">
+                                    <div class="option-title">Groupe 2 (Non dangereux)</div>
+                                    <div class="option-description">Tous les autres fluides (air, azote, eau...)</div>
+                                </div>
+                            </div>
+                            <div class="option-card-footer">Sélectionné ✓</div>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="prevStep(3)">← Retour</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Technical Parameters -->
+            <div id="step4" class="card hidden">
+                <div class="card-header">
+                    <h2 class="card-title">Paramètres techniques</h2>
+                    <p class="card-subtitle">Saisissez les caractéristiques de votre équipement</p>
+                </div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="input-label-text">Pression Maximale Admissible (PS)</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" class="input-field" id="psInput" placeholder="Ex: 10" min="0" step="0.1">
+                            <span class="input-unit">bar</span>
+                        </div>
+                        <div class="input-info">La pression maximale pour laquelle l'équipement est conçu</div>
+                        <div class="input-error" id="psError">Veuillez saisir une pression valide</div>
+                    </div>
+
+                    <div class="input-group" id="volumeGroup">
+                        <div class="input-label">
+                            <span class="input-label-text">Volume (V)</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" class="input-field" id="vInput" placeholder="Ex: 50" min="0" step="0.1">
+                            <span class="input-unit">litres</span>
+                        </div>
+                        <div class="input-info">Le volume intérieur du récipient</div>
+                        <div class="input-error" id="vError">Veuillez saisir un volume valide</div>
+                    </div>
+
+                    <div class="input-group hidden" id="dnGroup">
+                        <div class="input-label">
+                            <span class="input-label-text">Dimension Nominale (DN)</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" class="input-field" id="dnInput" placeholder="Ex: 100" min="0" step="1">
+                        </div>
+                        <div class="input-info">Désignation standardisée sans unité (ex: DN 25, DN 50, DN 100, DN 200...)</div>
+                        <div class="input-error" id="dnError">Veuillez saisir une DN valide</div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-box-title">💡 Calcul en temps réel</div>
+                        <div class="info-box-text" id="calculationInfo">Saisissez les valeurs pour voir le calcul</div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="prevStep(4)">← Retour</button>
+                        <button class="btn btn-primary" onclick="nextStep(4)">Suivant →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Special Cases -->
+            <div id="step5" class="card hidden">
+                <div class="card-header">
+                    <h2 class="card-title">Cas particuliers</h2>
+                    <p class="card-subtitle">Conditions spéciales pouvant modifier la catégorie (optionnel)</p>
+                </div>
+                <div class="card-body">
+                    <div class="checkbox-group" id="specialCasesGroup">
+                        <!-- Dynamically populated -->
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="prevStep(5)">← Retour</button>
+                        <button class="btn btn-primary" onclick="calculateResult()">Voir le résultat →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Final Result -->
+            <div id="step6" class="card hidden">
+                <div class="card-header">
+                    <h2 class="card-title">Résultat de la classification</h2>
+                    <p class="card-subtitle">Classification selon la directive 2014/68/UE</p>
+                </div>
+                <div class="card-body">
+                    <div id="resultCard" class="result-card">
+                        <div class="result-title" id="resultTitle">Catégorie</div>
+                    </div>
+
+                    <div class="result-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Type d'équipement</span>
+                            <span class="detail-value" id="detailType">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Type de fluide</span>
+                            <span class="detail-value" id="detailFluid">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Groupe de fluide</span>
+                            <span class="detail-value" id="detailGroup">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Pression (PS)</span>
+                            <span class="detail-value" id="detailPS">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label" id="detailParamLabel">Volume (V)</span>
+                            <span class="detail-value" id="detailParam">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Calcul</span>
+                            <span class="detail-value" id="detailCalc">-</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Tableau appliqué</span>
+                            <span class="detail-value" id="detailTable">-</span>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <div class="info-box-title">📖 Explication</div>
+                        <div class="info-box-text" id="explanationText">-</div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="resetTool()">🔄 Nouvelle analyse</button>
+                        <button class="btn btn-primary" onclick="exportToPDF()">📄 Exporter en PDF</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ============ RESULT PANEL (RIGHT SIDEBAR) ============ -->
+        <aside class="result-panel" id="resultPanel">
+            <div class="result-preview-header">
+                <h3>Aperçu Classification</h3>
+                <span class="status-badge" id="statusBadge">En cours...</span>
+            </div>
+            
+            <div class="result-category-preview">
+                <div class="category-icon">📋</div>
+                <div class="category-label">Catégorie</div>
+                <div class="category-value" id="previewCategory">-</div>
+            </div>
+            
+            <div class="result-summary">
+                <div class="summary-row">
+                    <span class="summary-label">Type</span>
+                    <span class="summary-value" id="preview-type">-</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Fluide</span>
+                    <span class="summary-value" id="preview-fluid">-</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Groupe</span>
+                    <span class="summary-value" id="preview-group">-</span>
+                </div>
+                <div class="summary-row highlighted">
+                    <span class="summary-label" id="preview-calc-label">Calcul</span>
+                    <span class="summary-value" id="preview-calc">-</span>
+                </div>
+            </div>
+            
+            <div class="result-next-step" id="nextStepHint">
+                <div class="hint-icon">💡</div>
+                <div class="hint-text">Sélectionnez le type d'équipement pour commencer</div>
+            </div>
+
+            <div class="export-section hidden" id="exportSection">
+                <h4>Actions</h4>
+                <button class="btn-export" onclick="exportToPDF()">
+                    <span>📄</span> Exporter en PDF
+                </button>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // ============ APPLICATION STATE ============
+        const state = {
+            currentStep: 1,
+            equipmentType: null,
+            fluidType: null,
+            fluidGroup: null,
+            ps: null,
+            v: null,
+            dn: null,
+            specialCases: [],
+            finalCategory: null
+        };
+
+        // ============ INITIALIZATION ============
+        document.addEventListener('DOMContentLoaded', function() {
+            loadState(); // P2 - localStorage
+            setupOptionCards();
+            setupInputListeners();
+            setupKeyboardNavigation(); // P2 - Navigation clavier
+            updateSidebar();
+            updatePreviewPanel();
+        });
+
+        // ============ P2 - LOCALSTORAGE ============
+        function saveState() {
+            try {
+                localStorage.setItem('desp_calculator_state', JSON.stringify(state));
+            } catch (e) {
+                console.warn('Could not save state to localStorage', e);
+            }
+        }
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem('desp_calculator_state');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (confirm('Reprendre le calcul précédent ?')) {
+                        Object.assign(state, parsed);
+                        restoreUI();
+                    } else {
+                        localStorage.removeItem('desp_calculator_state');
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not load state from localStorage', e);
+            }
+        }
+
+        function restoreUI() {
+            // Hide all steps
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById(`step${i}`).classList.add('hidden');
+            }
+            // Show current step
+            document.getElementById(`step${state.currentStep}`).classList.remove('hidden');
+            
+            // Restore selections
+            if (state.equipmentType) {
+                const card = document.querySelector(`[data-value="${state.equipmentType}"][data-step="1"]`);
+                if (card) card.classList.add('selected');
+            }
+            if (state.fluidType) {
+                const card = document.querySelector(`[data-value="${state.fluidType}"][data-step="2"]`);
+                if (card) card.classList.add('selected');
+            }
+            if (state.fluidGroup) {
+                const card = document.querySelector(`[data-value="${state.fluidGroup}"][data-step="3"]`);
+                if (card) card.classList.add('selected');
+            }
+            
+            // Restore inputs
+            if (state.ps !== null) document.getElementById('psInput').value = state.ps;
+            if (state.v !== null) document.getElementById('vInput').value = state.v;
+            if (state.dn !== null) document.getElementById('dnInput').value = state.dn;
+            
+            // Update UI
+            if (state.currentStep >= 4) {
+                if (state.equipmentType === 'vessel') {
+                    document.getElementById('volumeGroup').classList.remove('hidden');
+                    document.getElementById('dnGroup').classList.add('hidden');
+                } else {
+                    document.getElementById('volumeGroup').classList.add('hidden');
+                    document.getElementById('dnGroup').classList.remove('hidden');
+                }
+            }
+            
+            updateSidebar();
+            updatePreviewPanel();
+            updateCalculation();
+        }
+
+        // ============ OPTION CARDS SETUP ============
+        function setupOptionCards() {
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    handleOptionSelection(this);
+                });
+                
+                // P2 - Keyboard support
+                card.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleOptionSelection(this);
+                    }
+                });
+            });
+        }
+
+        function handleOptionSelection(card) {
+            const parent = card.parentElement;
+            const step = parseInt(card.dataset.step);
+            const value = card.dataset.value;
+            
+            // Mark as selected
+            parent.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            
+            // Update state
+            if (step === 1) state.equipmentType = value;
+            if (step === 2) state.fluidType = value;
+            if (step === 3) state.fluidGroup = value;
+            
+            saveState();
+            updateSidebar();
+            updatePreviewPanel();
+            
+            // Auto-advance
+            setTimeout(() => {
+                if (step < 4) {
+                    nextStepAuto(step);
+                }
+            }, 300);
+        }
+
+        // ============ INPUT LISTENERS ============
+        function setupInputListeners() {
+            const psInput = document.getElementById('psInput');
+            const vInput = document.getElementById('vInput');
+            const dnInput = document.getElementById('dnInput');
+            
+            [psInput, vInput, dnInput].forEach(input => {
+                if (input) {
+                    input.addEventListener('input', function() {
+                        this.classList.remove('error');
+                        const errorEl = document.getElementById(this.id + 'Error');
+                        if (errorEl) errorEl.classList.remove('visible');
+                        
+                        updateCalculation();
+                        updatePreviewPanel();
+                        saveState();
+                    });
+                }
+            });
+        }
+
+        // P2 - KEYBOARD NAVIGATION
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    if (state.currentStep === 4) {
+                        const activeElement = document.activeElement;
+                        if (activeElement.classList.contains('input-field')) {
+                            nextStep(4);
+                        }
+                    } else if (state.currentStep === 5) {
+                        const activeElement = document.activeElement;
+                        if (!activeElement.classList.contains('btn')) {
+                            calculateResult();
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCalculation() {
+            const ps = parseFloat(document.getElementById('psInput').value);
+            const v = parseFloat(document.getElementById('vInput').value);
+            const dn = parseFloat(document.getElementById('dnInput').value);
+            const calcInfo = document.getElementById('calculationInfo');
+            
+            if (state.equipmentType === 'vessel' && !isNaN(ps) && !isNaN(v)) {
+                const product = (ps * v).toFixed(2);
+                calcInfo.textContent = `PS × V = ${ps.toFixed(2)} × ${v.toFixed(2)} = ${product} bar.L`;
+            } else if (state.equipmentType === 'piping' && !isNaN(ps) && !isNaN(dn)) {
+                const product = (ps * dn).toFixed(2);
+                calcInfo.textContent = `PS × DN = ${ps.toFixed(2)} bar × DN ${dn.toFixed(0)} = ${product}`;
+            } else {
+                calcInfo.textContent = 'Saisissez les valeurs pour voir le calcul';
+            }
+        }
+
+        // ============ SIDEBAR UPDATE ============
+        function updateSidebar() {
+            // Update navigation values
+            document.getElementById('nav-type').textContent = 
+                state.equipmentType === 'vessel' ? 'Récipient' : 
+                state.equipmentType === 'piping' ? 'Tuyauterie' : '-';
+            
+            document.getElementById('nav-fluid').textContent = 
+                state.fluidType === 'gas' ? 'Gaz' : 
+                state.fluidType === 'liquid' ? 'Liquide' : '-';
+            
+            document.getElementById('nav-group').textContent = 
+                state.fluidGroup === 'group1' ? 'Groupe 1' : 
+                state.fluidGroup === 'group2' ? 'Groupe 2' : '-';
+            
+            let paramsText = '-';
+            if (state.ps !== null) {
+                if (state.equipmentType === 'vessel' && state.v !== null) {
+                    paramsText = `${state.ps} bar × ${state.v} L`;
+                } else if (state.equipmentType === 'piping' && state.dn !== null) {
+                    paramsText = `${state.ps} bar × DN${state.dn}`;
+                } else {
+                    paramsText = `${state.ps} bar`;
+                }
+            }
+            document.getElementById('nav-params').textContent = paramsText;
+            
+            document.getElementById('nav-special').textContent = 
+                state.specialCases.length > 0 ? `${state.specialCases.length} cas` : 'Aucun';
+            
+            // Update active/completed states
+            document.querySelectorAll('.nav-item').forEach((item, index) => {
+                const stepNum = index + 1;
+                item.classList.remove('active', 'completed');
+                
+                if (stepNum < state.currentStep) {
+                    item.classList.add('completed');
+                } else if (stepNum === state.currentStep) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // ============ PREVIEW PANEL UPDATE ============
+        function updatePreviewPanel() {
+            const panel = document.getElementById('resultPanel');
+            const statusBadge = document.getElementById('statusBadge');
+            const previewCategory = document.getElementById('previewCategory');
+            const nextStepHint = document.getElementById('nextStepHint');
+            
+            // Update summary values
+            document.getElementById('preview-type').textContent = 
+                state.equipmentType === 'vessel' ? 'Récipient' : 
+                state.equipmentType === 'piping' ? 'Tuyauterie' : '-';
+            
+            document.getElementById('preview-fluid').textContent = 
+                state.fluidType === 'gas' ? 'Gaz' : 
+                state.fluidType === 'liquid' ? 'Liquide' : '-';
+            
+            document.getElementById('preview-group').textContent = 
+                state.fluidGroup === 'group1' ? 'Groupe 1' : 
+                state.fluidGroup === 'group2' ? 'Groupe 2' : '-';
+            
+            // Update calculation
+            const calcLabel = document.getElementById('preview-calc-label');
+            const calcValue = document.getElementById('preview-calc');
+            
+            if (state.equipmentType === 'vessel') {
+                calcLabel.textContent = 'PS × V';
+                if (state.ps !== null && state.v !== null) {
+                    calcValue.textContent = `${(state.ps * state.v).toFixed(2)} bar.L`;
+                } else {
+                    calcValue.textContent = '-';
+                }
+            } else if (state.equipmentType === 'piping') {
+                calcLabel.textContent = 'PS × DN';
+                if (state.ps !== null && state.dn !== null) {
+                    calcValue.textContent = `${(state.ps * state.dn).toFixed(2)}`;
+                } else {
+                    calcValue.textContent = '-';
+                }
+            } else {
+                calcLabel.textContent = 'Calcul';
+                calcValue.textContent = '-';
+            }
+            
+            // Update hint
+            if (state.currentStep === 1) {
+                nextStepHint.querySelector('.hint-text').textContent = 
+                    'Sélectionnez le type d\'équipement pour commencer';
+            } else if (state.currentStep === 2) {
+                nextStepHint.querySelector('.hint-text').textContent = 
+                    'Sélectionnez le type de fluide';
+            } else if (state.currentStep === 3) {
+                nextStepHint.querySelector('.hint-text').textContent = 
+                    'Sélectionnez le groupe de fluide';
+            } else if (state.currentStep === 4) {
+                nextStepHint.querySelector('.hint-text').textContent = 
+                    'Renseignez les paramètres techniques';
+            } else if (state.currentStep === 5) {
+                nextStepHint.querySelector('.hint-text').textContent = 
+                    'Vérifiez les cas particuliers applicables';
+            } else if (state.currentStep === 6) {
+                nextStepHint.querySelector('.hint-text').textContent = 
+                    'Classification terminée !';
+                statusBadge.textContent = 'Terminé';
+                statusBadge.classList.add('complete');
+                previewCategory.textContent = state.finalCategory || '-';
+                document.getElementById('exportSection').classList.remove('hidden');
+            }
+            
+            // Show panel after step 1
+            if (state.currentStep > 1) {
+                panel.classList.add('visible');
+            }
+        }
+
+        // ============ NAVIGATION ============
+        function nextStepAuto(currentStep) {
+            if (currentStep === 3) {
+                if (state.equipmentType === 'vessel') {
+                    document.getElementById('volumeGroup').classList.remove('hidden');
+                    document.getElementById('dnGroup').classList.add('hidden');
+                } else {
+                    document.getElementById('volumeGroup').classList.add('hidden');
+                    document.getElementById('dnGroup').classList.remove('hidden');
+                }
+            }
+            
+            document.getElementById(`step${currentStep}`).classList.add('hidden');
+            document.getElementById(`step${currentStep + 1}`).classList.remove('hidden');
+            
+            state.currentStep = currentStep + 1;
+            saveState();
+            updateSidebar();
+            updatePreviewPanel();
+            window.scrollTo(0, 0);
+        }
+
+        function validateStep4() {
+            const psInput = document.getElementById('psInput');
+            const psError = document.getElementById('psError');
+            const ps = parseFloat(psInput.value);
+            
+            let isValid = true;
+            
+            if (isNaN(ps) || ps < 0) {
+                psInput.classList.add('error');
+                psError.textContent = 'Veuillez saisir une pression valide (≥ 0)';
+                psError.classList.add('visible');
+                isValid = false;
+            } else if (ps > 10000) {
+                psInput.classList.add('error');
+                psError.textContent = 'Pression > 10 000 bar : valeur inhabituelle';
+                psError.classList.add('visible');
+                if (!confirm('Pression > 10 000 bar : valeur inhabituelle. Confirmer ?')) {
+                    isValid = false;
+                } else {
+                    psInput.classList.remove('error');
+                    psError.classList.remove('visible');
+                }
+            }
+            
+            if (!isValid) return false;
+            
+            if (state.equipmentType === 'vessel') {
+                const vInput = document.getElementById('vInput');
+                const vError = document.getElementById('vError');
+                const v = parseFloat(vInput.value);
+                
+                if (isNaN(v) || v <= 0) {
+                    vInput.classList.add('error');
+                    vError.textContent = 'Veuillez saisir un volume valide (> 0)';
+                    vError.classList.add('visible');
+                    isValid = false;
+                } else if (v > 1000000) {
+                    vInput.classList.add('error');
+                    vError.textContent = 'Volume > 1 000 000 L : valeur inhabituelle';
+                    vError.classList.add('visible');
+                    if (!confirm('Volume > 1 000 000 L : valeur inhabituelle. Confirmer ?')) {
+                        isValid = false;
+                    } else {
+                        vInput.classList.remove('error');
+                        vError.classList.remove('visible');
+                    }
+                }
+                
+                if (isValid) state.v = v;
+            } else {
+                const dnInput = document.getElementById('dnInput');
+                const dnError = document.getElementById('dnError');
+                const dn = parseFloat(dnInput.value);
+                
+                if (isNaN(dn) || dn <= 0) {
+                    dnInput.classList.add('error');
+                    dnError.textContent = 'Veuillez saisir une DN valide (> 0)';
+                    dnError.classList.add('visible');
+                    isValid = false;
+                } else if (dn > 5000) {
+                    dnInput.classList.add('error');
+                    dnError.textContent = 'DN > 5000 : valeur inhabituelle';
+                    dnError.classList.add('visible');
+                    if (!confirm('DN > 5000 : valeur inhabituelle. Confirmer ?')) {
+                        isValid = false;
+                    } else {
+                        dnInput.classList.remove('error');
+                        dnError.classList.remove('visible');
+                    }
+                }
+                
+                if (isValid) state.dn = dn;
+            }
+            
+            if (isValid) state.ps = ps;
+            
+            return isValid;
+        }
+
+        function nextStep(currentStep) {
+            if (currentStep === 4) {
+                if (!validateStep4()) return;
+                
+                // P1.2 - Court-circuit
+                if (state.ps <= 0.5) {
+                    state.finalCategory = 'Non soumis';
+                    displayQuickResult(
+                        'Non soumis',
+                        'PS ≤ 0,5 bar : équipement non soumis à la directive DESP 2014/68/UE',
+                        'N/A'
+                    );
+                    document.getElementById('step4').classList.add('hidden');
+                    document.getElementById('step6').classList.remove('hidden');
+                    state.currentStep = 6;
+                    saveState();
+                    updateSidebar();
+                    updatePreviewPanel();
+                    window.scrollTo(0, 0);
+                    return;
+                }
+                
+                prepareSpecialCases();
+            }
+            
+            document.getElementById(`step${currentStep}`).classList.add('hidden');
+            document.getElementById(`step${currentStep + 1}`).classList.remove('hidden');
+            
+            state.currentStep = currentStep + 1;
+            saveState();
+            updateSidebar();
+            updatePreviewPanel();
+            window.scrollTo(0, 0);
+        }
+
+        function prevStep(currentStep) {
+            document.getElementById(`step${currentStep}`).classList.add('hidden');
+            document.getElementById(`step${currentStep - 1}`).classList.remove('hidden');
+            
+            state.currentStep = currentStep - 1;
+            saveState();
+            updateSidebar();
+            updatePreviewPanel();
+            window.scrollTo(0, 0);
+        }
+
+        function goToStep(stepNum) {
+            // Only allow going back
+            if (stepNum >= state.currentStep) return;
+            
+            document.getElementById(`step${state.currentStep}`).classList.add('hidden');
+            document.getElementById(`step${stepNum}`).classList.remove('hidden');
+            
+            state.currentStep = stepNum;
+            saveState();
+            updateSidebar();
+            updatePreviewPanel();
+            window.scrollTo(0, 0);
+        }
+
+        // ============ SPECIAL CASES ============
+        function prepareSpecialCases() {
+            const container = document.getElementById('specialCasesGroup');
+            container.innerHTML = '';
+            
+            if (state.equipmentType === 'vessel' && state.fluidType === 'gas') {
+                addSpecialCase(container, 'unstable_gas', '☢️ Mon équipement contient un gaz instable', 
+                    'Reclassification automatique en Catégorie III si initialement I ou II');
+            }
+            
+            if (state.equipmentType === 'vessel' && state.fluidType === 'liquid' && state.fluidGroup === 'group2') {
+                addSpecialCase(container, 'extinguisher', '🧯 Mon équipement est un extincteur portable', 
+                    'Classement minimum en Catégorie III');
+                addSpecialCase(container, 'breathing', '🫁 Mon équipement est une bouteille pour équipement respiratoire', 
+                    'Classement minimum en Catégorie III');
+            }
+            
+            if (state.equipmentType === 'piping' && state.fluidType === 'gas' && state.fluidGroup === 'group2') {
+                addSpecialCase(container, 'unstable_gas_piping', '☢️ Ma tuyauterie est destinée à un gaz instable', 
+                    'Reclassification automatique en Catégorie III si initialement I ou II');
+            }
+            
+            if (state.equipmentType === 'piping') {
+                addSpecialCase(container, 'high_temp', '🌡️ Ma tuyauterie contient des fluides à température > 350°C', 
+                    'Reclassification de Catégorie II vers Catégorie III');
+            }
+            
+            if (container.innerHTML === '') {
+                container.innerHTML = '<div class="info-box"><div class="info-box-text">Aucun cas particulier applicable pour cette configuration.</div></div>';
+            }
+        }
+
+        function addSpecialCase(container, id, title, description) {
+            const div = document.createElement('div');
+            div.className = 'checkbox-item';
+            div.innerHTML = `
+                <input type="checkbox" id="${id}" value="${id}" ${state.specialCases.includes(id) ? 'checked' : ''}>
+                <div class="checkbox-label">
+                    <div class="checkbox-title">${title}</div>
+                    <div class="checkbox-description">${description}</div>
+                </div>
+            `;
+            container.appendChild(div);
+            
+            div.querySelector('input').addEventListener('change', function() {
+                if (this.checked) {
+                    if (!state.specialCases.includes(this.value)) {
+                        state.specialCases.push(this.value);
+                    }
+                } else {
+                    state.specialCases = state.specialCases.filter(c => c !== this.value);
+                }
+                saveState();
+                updateSidebar();
+            });
+        }
+
+        // ============ CALCULATION ============
+        function calculateResult() {
+            let category = '';
+            let explanation = '';
+            let tableNum = '';
+            
+            if (state.equipmentType === 'vessel' && state.fluidType === 'gas' && state.fluidGroup === 'group2') {
+                tableNum = 'Table 1';
+                const result = calculateTable1(state.ps, state.v);
+                category = result.category;
+                explanation = result.explanation;
+            } else if (state.equipmentType === 'vessel' && state.fluidType === 'gas' && state.fluidGroup === 'group1') {
+                tableNum = 'Table 2';
+                const result = calculateTable2(state.ps, state.v);
+                category = result.category;
+                explanation = result.explanation;
+            } else if (state.equipmentType === 'vessel' && state.fluidType === 'liquid' && state.fluidGroup === 'group2') {
+                tableNum = 'Table 3';
+                const result = calculateTable3(state.ps, state.v);
+                category = result.category;
+                explanation = result.explanation;
+            } else if (state.equipmentType === 'vessel' && state.fluidType === 'liquid' && state.fluidGroup === 'group1') {
+                tableNum = 'Table 4';
+                const result = calculateTable4(state.ps, state.v);
+                category = result.category;
+                explanation = result.explanation;
+            } else if (state.equipmentType === 'piping' && state.fluidType === 'gas' && state.fluidGroup === 'group2') {
+                tableNum = 'Table 6';
+                const result = calculateTable6(state.ps, state.dn);
+                category = result.category;
+                explanation = result.explanation;
+            } else if (state.equipmentType === 'piping' && state.fluidType === 'gas' && state.fluidGroup === 'group1') {
+                tableNum = 'Table 7';
+                const result = calculateTable7(state.ps, state.dn);
+                category = result.category;
+                explanation = result.explanation;
+            } else if (state.equipmentType === 'piping' && state.fluidType === 'liquid' && state.fluidGroup === 'group2') {
+                tableNum = 'Table 8';
+                const result = calculateTable8(state.ps, state.dn);
+                category = result.category;
+                explanation = result.explanation;
+            } else if (state.equipmentType === 'piping' && state.fluidType === 'liquid' && state.fluidGroup === 'group1') {
+                tableNum = 'Table 9';
+                const result = calculateTable9(state.ps, state.dn);
+                category = result.category;
+                explanation = result.explanation;
+            }
+            
+            if (!category) {
+                category = 'Erreur de calcul';
+                explanation = 'Configuration non reconnue. Veuillez vérifier vos paramètres.';
+                tableNum = 'N/A';
+                console.error('Configuration non gérée:', state);
+            }
+            
+            if (category !== 'Erreur de calcul') {
+                const originalCategory = category;
+                category = applySpecialCases(category);
+                if (originalCategory !== category) {
+                    explanation += ` (Reclassification appliquée suite aux cas particuliers)`;
+                }
+            }
+            
+            state.finalCategory = category;
+            displayResult(category, explanation, tableNum);
+            
+            document.getElementById('step5').classList.add('hidden');
+            document.getElementById('step6').classList.remove('hidden');
+            state.currentStep = 6;
+            saveState();
+            updateSidebar();
+            updatePreviewPanel();
+            window.scrollTo(0, 0);
+        }
+
+        // ============ CALCULATION TABLES (P0.1 CORRECTED) ============
+        function calculateTable1(ps, v) {
+            if (ps <= 0.5) return { category: 'Non soumis', explanation: 'PS ≤ 0,5 bar' };
+            if (v <= 1) return { category: 'Article 4§3', explanation: 'V ≤ 1 L' };
+            
+            const ps_v = ps * v;
+            if (ps_v <= 50) return { category: 'Article 4§3', explanation: 'PS×V ≤ 50 bar.L' };
+            if (ps > 1000) return { category: 'Catégorie III', explanation: 'PS > 1000 bar' };
+            if (ps_v > 1000 || ps > 200) return { category: 'Catégorie II', explanation: 'PS×V > 1000 bar.L ou PS > 200 bar' };
+            
+            return { category: 'Catégorie I', explanation: 'PS×V ≤ 1000 bar.L et PS ≤ 200 bar' };
+        }
+
+        function calculateTable2(ps, v) {
+            if (ps <= 0.5) return { category: 'Non soumis', explanation: 'PS ≤ 0,5 bar' };
+            if (v <= 1) return { category: 'Article 4§3', explanation: 'V ≤ 1 L' };
+            
+            const ps_v = ps * v;
+            if (ps_v <= 25) return { category: 'Article 4§3', explanation: 'PS×V ≤ 25 bar.L' };
+            if (ps > 3000 || ps_v > 3000) return { category: 'Catégorie IV', explanation: 'PS > 3000 bar ou PS×V > 3000 bar.L' };
+            if (ps_v > 1000) return { category: 'Catégorie III', explanation: 'PS×V > 1000 bar.L' };
+            if (ps_v > 200) return { category: 'Catégorie II', explanation: '200 < PS×V ≤ 1000 bar.L' };
+            
+            return { category: 'Catégorie I', explanation: '25 < PS×V ≤ 200 bar.L' };
+        }
+
+        function calculateTable3(ps, v) {
+            if (ps <= 0.5) return { category: 'Non soumis', explanation: 'PS ≤ 0,5 bar' };
+            if (v <= 1) return { category: 'Article 4§3', explanation: 'V ≤ 1 L' };
+            
+            const ps_v = ps * v;
+            if (ps_v <= 200) return { category: 'Article 4§3', explanation: 'PS×V ≤ 200 bar.L' };
+            if (ps > 500) return { category: 'Catégorie III', explanation: 'PS > 500 bar' };
+            if (ps_v > 10000) return { category: 'Catégorie II', explanation: 'PS×V > 10000 bar.L' };
+            
+            return { category: 'Catégorie I', explanation: 'PS×V ≤ 10000 bar.L et PS ≤ 500 bar' };
+        }
+
+        function calculateTable4(ps, v) {
+            if (ps <= 0.5) return { category: 'Non soumis', explanation: 'PS ≤ 0,5 bar' };
+            if (ps <= 10) return { category: 'Article 4§3', explanation: 'PS ≤ 10 bar' };
+            
+            const ps_v = ps * v;
+            if (ps > 500) return { category: 'Catégorie II', explanation: 'PS > 500 bar' };
+            if (ps_v > 10000) return { category: 'Catégorie II', explanation: 'PS×V > 10000 bar.L' };
+            
+            return { category: 'Catégorie I', explanation: 'PS×V ≤ 10000 bar.L et PS ≤ 500 bar' };
+        }
+
+        function calculateTable6(ps, dn) {
+            if (ps <= 0.5) return { category: 'Non soumis', explanation: 'PS ≤ 0,5 bar' };
+            if (dn <= 25) return { category: 'Article 4§3', explanation: 'DN ≤ 25' };
+            
+            const ps_dn = ps * dn;
+            if (ps_dn > 2500) return { category: 'Catégorie III', explanation: 'PS×DN > 2500' };
+            if (ps_dn > 1000) return { category: 'Catégorie II', explanation: '1000 < PS×DN ≤ 2500' };
+            
+            return { category: 'Catégorie I', explanation: 'PS×DN ≤ 1000' };
+        }
+
+        function calculateTable7(ps, dn) {
+            if (ps <= 0.5) return { category: 'Non soumis', explanation: 'PS ≤ 0,5 bar' };
+            if (dn <= 32) return { category: 'Article 4§3', explanation: 'DN ≤ 32' };
+            
+            const ps_dn = ps * dn;
+            if (ps_dn > 3500) return { category: 'Catégorie III', explanation: 'PS×DN > 3500' };
+            if (ps_dn > 1000) return { category: 'Catégorie II', explanation: '1000 < PS×DN ≤ 3500' };
+            
+            return { category: 'Catégorie I', explanation: 'PS×DN ≤ 1000' };
+        }
+
+        function calculateTable8(ps, dn) {
+            if (ps <= 0.5) return { category: 'Non soumis', explanation: 'PS ≤ 0,5 bar' };
+            if (dn <= 25) return { category: 'Article 4§3', explanation: 'DN ≤ 25' };
+            if (ps <= 10) return { category: 'Article 4§3', explanation: 'PS ≤ 10 bar' };
+            
+            const ps_dn = ps * dn;
+            if (ps > 500) return { category: 'Catégorie III', explanation: 'PS > 500 bar' };
+            if (ps_dn > 2000) return { category: 'Catégorie II', explanation: 'PS×DN > 2000' };
+            
+            return { category: 'Catégorie I', explanation: 'PS×DN ≤ 2000 et PS ≤ 500 bar' };
+        }
+
+        function calculateTable9(ps, dn) {
+            if (ps <= 0.5) return { category: 'Non soumis', explanation: 'PS ≤ 0,5 bar' };
+            if (ps <= 10) return { category: 'Article 4§3', explanation: 'PS ≤ 10 bar' };
+            
+            const ps_dn = ps * dn;
+            if (ps > 500) return { category: 'Catégorie II', explanation: 'PS > 500 bar' };
+            if (ps_dn > 5000) return { category: 'Catégorie II', explanation: 'PS×DN > 5000' };
+            
+            return { category: 'Catégorie I', explanation: 'PS×DN ≤ 5000 et PS ≤ 500 bar' };
+        }
+
+        function applySpecialCases(category) {
+            if (state.specialCases.includes('unstable_gas') || state.specialCases.includes('unstable_gas_piping')) {
+                if (category === 'Catégorie I' || category === 'Catégorie II') {
+                    return 'Catégorie III';
+                }
+            }
+            
+            if (state.specialCases.includes('extinguisher') || state.specialCases.includes('breathing')) {
+                if (category === 'Catégorie I' || category === 'Catégorie II' || category === 'Article 4§3') {
+                    return 'Catégorie III';
+                }
+            }
+            
+            if (state.specialCases.includes('high_temp')) {
+                if (category === 'Catégorie II') {
+                    return 'Catégorie III';
+                }
+            }
+            
+            return category;
+        }
+
+        // ============ DISPLAY RESULTS ============
+        function displayQuickResult(category, explanation, tableNum) {
+            const resultCard = document.getElementById('resultCard');
+            const resultTitle = document.getElementById('resultTitle');
+            
+            resultTitle.textContent = category;
+            resultCard.className = 'result-card result-art43';
+            
+            document.getElementById('detailType').textContent = state.equipmentType === 'vessel' ? 'Récipient' : 'Tuyauterie';
+            document.getElementById('detailFluid').textContent = state.fluidType === 'gas' ? 'Gaz' : 'Liquide';
+            document.getElementById('detailGroup').textContent = state.fluidGroup === 'group1' ? 'Groupe 1 (dangereux)' : 'Groupe 2 (non dangereux)';
+            document.getElementById('detailPS').textContent = `${state.ps} bar`;
+            document.getElementById('detailParamLabel').textContent = '-';
+            document.getElementById('detailParam').textContent = 'N/A';
+            document.getElementById('detailCalc').textContent = 'N/A';
+            document.getElementById('detailTable').textContent = tableNum;
+            document.getElementById('explanationText').textContent = explanation;
+        }
+
+        function displayResult(category, explanation, tableNum) {
+            const resultCard = document.getElementById('resultCard');
+            const resultTitle = document.getElementById('resultTitle');
+            
+            resultTitle.textContent = category;
+            
+            resultCard.className = 'result-card';
+            if (category.includes('Non soumis') || category.includes('Article 4§3')) {
+                resultCard.classList.add('result-art43');
+            } else if (category.includes('Catégorie I')) {
+                resultCard.classList.add('result-cat1');
+            } else if (category.includes('Catégorie II')) {
+                resultCard.classList.add('result-cat2');
+            } else if (category.includes('Catégorie III')) {
+                resultCard.classList.add('result-cat3');
+            } else if (category.includes('Catégorie IV')) {
+                resultCard.classList.add('result-cat4');
+            } else if (category.includes('Erreur')) {
+                resultCard.classList.add('result-error');
+            }
+            
+            document.getElementById('detailType').textContent = state.equipmentType === 'vessel' ? 'Récipient' : 'Tuyauterie';
+            document.getElementById('detailFluid').textContent = state.fluidType === 'gas' ? 'Gaz' : 'Liquide';
+            document.getElementById('detailGroup').textContent = state.fluidGroup === 'group1' ? 'Groupe 1 (dangereux)' : 'Groupe 2 (non dangereux)';
+            document.getElementById('detailPS').textContent = `${state.ps} bar`;
+            
+            if (state.equipmentType === 'vessel') {
+                document.getElementById('detailParamLabel').textContent = 'Volume (V)';
+                document.getElementById('detailParam').textContent = `${state.v} litres`;
+                document.getElementById('detailCalc').textContent = `PS × V = ${(state.ps * state.v).toFixed(2)} bar.L`;
+            } else {
+                document.getElementById('detailParamLabel').textContent = 'Dimension Nominale (DN)';
+                document.getElementById('detailParam').textContent = `DN ${state.dn}`;
+                document.getElementById('detailCalc').textContent = `PS × DN = ${(state.ps * state.dn).toFixed(2)}`;
+            }
+            
+            document.getElementById('detailTable').textContent = tableNum;
+            document.getElementById('explanationText').textContent = explanation;
+        }
+
+        // ============ P2 - EXPORT PDF ============
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Title
+            doc.setFontSize(18);
+            doc.text('Résultat Classification DESP', 20, 20);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text('Directive 2014/68/UE', 20, 28);
+            
+            // Category
+            doc.setFontSize(14);
+            doc.setTextColor(0);
+            doc.text(`Catégorie: ${state.finalCategory || 'N/A'}`, 20, 45);
+            
+            // Details
+            doc.setFontSize(11);
+            let y = 60;
+            
+            doc.text(`Type d'équipement: ${state.equipmentType === 'vessel' ? 'Récipient' : 'Tuyauterie'}`, 20, y);
+            y += 8;
+            
+            doc.text(`Type de fluide: ${state.fluidType === 'gas' ? 'Gaz' : 'Liquide'}`, 20, y);
+            y += 8;
+            
+            doc.text(`Groupe de fluide: ${state.fluidGroup === 'group1' ? 'Groupe 1 (dangereux)' : 'Groupe 2 (non dangereux)'}`, 20, y);
+            y += 8;
+            
+            doc.text(`Pression (PS): ${state.ps} bar`, 20, y);
+            y += 8;
+            
+            if (state.equipmentType === 'vessel') {
+                doc.text(`Volume (V): ${state.v} litres`, 20, y);
+                y += 8;
+                doc.text(`Calcul: PS × V = ${(state.ps * state.v).toFixed(2)} bar.L`, 20, y);
+            } else {
+                doc.text(`Dimension Nominale (DN): DN ${state.dn}`, 20, y);
+                y += 8;
+                doc.text(`Calcul: PS × DN = ${(state.ps * state.dn).toFixed(2)}`, 20, y);
+            }
+            y += 8;
+            
+            doc.text(`Tableau appliqué: ${document.getElementById('detailTable').textContent}`, 20, y);
+            y += 15;
+            
+            // Explanation
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text('Explication:', 20, y);
+            y += 6;
+            
+            const explanation = document.getElementById('explanationText').textContent;
+            const splitExplanation = doc.splitTextToSize(explanation, 170);
+            doc.text(splitExplanation, 20, y);
+            y += (splitExplanation.length * 5) + 10;
+            
+            // Footer
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text(`Document généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, 20, 280);
+            
+            doc.save('classification_desp.pdf');
+        }
+
+        // ============ RESET ============
+        function resetTool() {
+            if (state.currentStep > 1 && !confirm('Êtes-vous sûr de vouloir recommencer ? Les données actuelles seront perdues.')) {
+                return;
+            }
+            
+            state.currentStep = 1;
+            state.equipmentType = null;
+            state.fluidType = null;
+            state.fluidGroup = null;
+            state.ps = null;
+            state.v = null;
+            state.dn = null;
+            state.specialCases = [];
+            state.finalCategory = null;
+            
+            document.querySelectorAll('.card').forEach(card => card.classList.add('hidden'));
+            document.getElementById('step1').classList.remove('hidden');
+            document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('input').forEach(input => {
+                input.value = '';
+                input.classList.remove('error');
+            });
+            document.querySelectorAll('.input-error').forEach(error => error.classList.remove('visible'));
+            
+            document.getElementById('resultPanel').classList.remove('visible');
+            document.getElementById('exportSection').classList.add('hidden');
+            document.getElementById('statusBadge').classList.remove('complete');
+            
+            localStorage.removeItem('desp_calculator_state');
+            
+            updateSidebar();
+            updatePreviewPanel();
+            window.scrollTo(0, 0);
+        }
+    </script>
+
+</body>
+</html>
