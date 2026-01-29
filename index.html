@@ -124,10 +124,6 @@
             box-shadow: var(--shadow-lg);
         }
 
-        .feature-icon {
-            display: none;
-        }
-
         .icon-sm {
             width: 16px;
             height: 16px;
@@ -266,7 +262,7 @@
             <p class="subtitle">Outil gratuit conforme à la directive européenne 2014/68/UE sur les équipements sous pression</p>
             <a href="calculator.html" class="cta-button">
                 <span>Commencer le calcul</span>
-                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
         </div>
     </section>
@@ -304,36 +300,22 @@
                 <div class="step">
                     <div class="step-number">1</div>
                     <div class="step-content">
-                        <h3 class="step-title">Type d'équipement</h3>
-                        <p class="step-description">Sélectionnez si votre équipement est un récipient (enveloppe fermée) ou une tuyauterie (conduits de transport)</p>
+                        <h3 class="step-title">Décrivez votre équipement</h3>
+                        <p class="step-description">Type d'équipement (récipient ou tuyauterie), nature du fluide (gaz ou liquide) et groupe de dangerosité</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
                     <div class="step-content">
-                        <h3 class="step-title">Type et groupe de fluide</h3>
-                        <p class="step-description">Indiquez si le fluide est un gaz ou un liquide, puis son groupe de dangerosité (dangereux ou non dangereux)</p>
+                        <h3 class="step-title">Saisissez les paramètres</h3>
+                        <p class="step-description">Pression maximale admissible (PS), volume (V) ou dimension nominale (DN) selon le type d'équipement</p>
                     </div>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
                     <div class="step-content">
-                        <h3 class="step-title">Paramètres techniques</h3>
-                        <p class="step-description">Renseignez la pression maximale admissible (PS) et le volume (V) ou dimension nominale (DN)</p>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <div class="step-content">
-                        <h3 class="step-title">Cas particuliers</h3>
-                        <p class="step-description">Vérifiez si des conditions spéciales s'appliquent (gaz instables, extincteurs, haute température...)</p>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">5</div>
-                    <div class="step-content">
-                        <h3 class="step-title">Résultat + Export</h3>
-                        <p class="step-description">Obtenez votre catégorie DESP (I, II, III, IV ou Article 4§3) avec explications et possibilité d'export PDF</p>
+                        <h3 class="step-title">Obtenez votre classification</h3>
+                        <p class="step-description">Catégorie DESP (I, II, III, IV ou Article 4§3) avec explications détaillées et export PDF</p>
                     </div>
                 </div>
             </div>
@@ -357,7 +339,7 @@
     <!-- FOOTER -->
     <footer class="footer">
         <div class="container">
-            <p class="footer-text">© 2024 Calculateur DESP • Basé sur la Directive 2014/68/UE</p>
+            <p class="footer-text">© 2025 Calculateur DESP • Basé sur la Directive 2014/68/UE</p>
         </div>
     </footer>
 
