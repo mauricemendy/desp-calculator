@@ -1888,6 +1888,34 @@
                     ctx.beginPath();
                     ctx.arc(mx, my, 4, 0, Math.PI * 2);
                     ctx.fill();
+
+                    // Draw category label badge next to marker
+                    if (finalCategory) {
+                        const badgeColor = categoryColors[finalCategory] || categoryColors['Catégorie III'];
+                        const labelText = finalCategory.replace('Catégorie ', 'CAT ');
+
+                        ctx.font = 'bold 12px -apple-system, sans-serif';
+                        const textWidth = ctx.measureText(labelText).width;
+                        const badgeW = textWidth + 16;
+                        const badgeH = 24;
+                        const badgeX = mx + 15;
+                        const badgeY = my - badgeH / 2;
+
+                        // Badge background
+                        ctx.fillStyle = badgeColor.fill;
+                        ctx.strokeStyle = badgeColor.stroke;
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 4);
+                        ctx.fill();
+                        ctx.stroke();
+
+                        // Badge text
+                        ctx.fillStyle = badgeColor.text;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(labelText, badgeX + badgeW / 2, badgeY + badgeH / 2);
+                    }
                 }
             }
 
@@ -1898,10 +1926,10 @@
             ctx.fillText(config.title + ' — ' + config.subtitle, margin.left, 22);
 
             // Build legend
-            buildChartLegend(tableNum);
+            buildChartLegend(tableNum, finalCategory);
         }
 
-        function buildChartLegend(tableNum) {
+        function buildChartLegend(tableNum, finalCategory = null) {
             const legend = document.getElementById('chartLegend');
             if (!legend) return;
 
@@ -1913,6 +1941,11 @@
                 for (let logY = Math.log10(config.yMin); logY <= Math.log10(config.yMax); logY += 0.3) {
                     existingCategories.add(classifyPoint(tableNum, Math.pow(10, logY), Math.pow(10, logX)));
                 }
+            }
+
+            // Add final category if reclassified (e.g., Cat III from special cases)
+            if (finalCategory && !existingCategories.has(finalCategory)) {
+                existingCategories.add(finalCategory);
             }
 
             const categories = ['Non soumis', 'Article 4§3', 'Catégorie I', 'Catégorie II', 'Catégorie III', 'Catégorie IV'];
