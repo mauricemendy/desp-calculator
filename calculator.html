@@ -598,6 +598,194 @@
             color: #92400E;
         }
 
+        /* PROXIMITY INDICATOR */
+        .proximity-section {
+            margin-top: var(--space-6);
+        }
+        .proximity-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: var(--space-4);
+            color: var(--color-gray-900);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .proximity-container {
+            background: white;
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+        }
+        .proximity-bar-wrapper {
+            margin-bottom: var(--space-4);
+        }
+        .proximity-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--color-gray-500);
+            margin-bottom: 6px;
+        }
+        .proximity-bar {
+            height: 24px;
+            background: var(--color-gray-100);
+            border-radius: var(--radius-md);
+            position: relative;
+            overflow: hidden;
+        }
+        .proximity-bar-fill {
+            height: 100%;
+            border-radius: var(--radius-md);
+            transition: width 0.5s ease;
+        }
+        .proximity-bar-marker {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: #111827;
+            transform: translateX(-50%);
+        }
+        .proximity-bar-marker::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #111827;
+        }
+        .proximity-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-3);
+        }
+        .proximity-info-item {
+            background: var(--color-gray-50);
+            padding: var(--space-3);
+            border-radius: var(--radius-md);
+        }
+        .proximity-info-label {
+            font-size: 11px;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .proximity-info-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-gray-900);
+        }
+        .proximity-info-value.warning {
+            color: var(--color-warning);
+        }
+        .proximity-info-value.danger {
+            color: var(--color-error);
+        }
+        .proximity-info-value.safe {
+            color: var(--color-success);
+        }
+
+        /* DECISION TREE */
+        .decision-tree-section {
+            margin-top: var(--space-6);
+        }
+        .decision-tree-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: var(--space-4);
+            color: var(--color-gray-900);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .decision-tree-container {
+            background: white;
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+        }
+        .decision-tree {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        .decision-node {
+            display: flex;
+            align-items: stretch;
+            position: relative;
+        }
+        .decision-node-connector {
+            width: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .decision-node-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--color-primary);
+            z-index: 2;
+            flex-shrink: 0;
+        }
+        .decision-node-line {
+            width: 2px;
+            flex: 1;
+            background: var(--color-primary);
+        }
+        .decision-node:last-child .decision-node-line {
+            display: none;
+        }
+        .decision-node-content {
+            flex: 1;
+            padding: var(--space-2) 0 var(--space-4) var(--space-3);
+        }
+        .decision-node-question {
+            font-size: 12px;
+            color: var(--color-gray-500);
+            margin-bottom: 4px;
+        }
+        .decision-node-answer {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-gray-900);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .decision-node-answer .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            background: var(--color-gray-100);
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--color-gray-600);
+        }
+        .decision-node.final .decision-node-dot {
+            width: 24px;
+            height: 24px;
+            background: var(--color-accent);
+            box-shadow: 0 0 0 3px var(--color-accent);
+        }
+        .decision-node.final .decision-node-content {
+            padding-top: var(--space-1);
+        }
+        .decision-node.final .decision-node-answer {
+            font-size: 16px;
+            color: var(--color-primary);
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: var(--space-4);
@@ -884,6 +1072,17 @@
                     <div class="info-box-text" id="explanationText">-</div>
                 </div>
 
+                <!-- Decision Tree -->
+                <div class="decision-tree-section" id="decisionTreeSection">
+                    <div class="decision-tree-section-title">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="14"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M12 14l-6 4M12 14l6 4"/></svg>
+                        Arbre de décision
+                    </div>
+                    <div class="decision-tree-container">
+                        <div class="decision-tree" id="decisionTree"></div>
+                    </div>
+                </div>
+
                 <!-- Zone Diagram -->
                 <div class="chart-section" id="chartSection">
                     <div class="chart-section-title">
@@ -894,6 +1093,18 @@
                         <canvas id="zoneChart" class="chart-canvas"></canvas>
                         <div class="chart-legend" id="chartLegend"></div>
                         <div class="chart-note hidden" id="chartNote"></div>
+                    </div>
+                </div>
+
+                <!-- Proximity Indicator -->
+                <div class="proximity-section" id="proximitySection">
+                    <div class="proximity-section-title">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                        Indicateur de proximité
+                    </div>
+                    <div class="proximity-container">
+                        <div class="proximity-bar-wrapper" id="proximityBarWrapper"></div>
+                        <div class="proximity-info" id="proximityInfo"></div>
                     </div>
                 </div>
 
@@ -1508,6 +1719,13 @@
             // Draw zone chart
             const param = state.equipmentType === 'vessel' ? state.v : state.dn;
             drawZoneChart(tableNum, state.ps, param, wasReclassified, originalCategory, category);
+
+            // Build decision tree
+            const tableNumInt = getTableNumber(tableNum);
+            buildDecisionTree(tableNumInt, category);
+
+            // Build proximity indicator
+            buildProximityIndicator(tableNumInt, category);
         }
 
         function displayQuickResult(category, explanation, tableNum) {
@@ -1527,8 +1745,10 @@
             document.getElementById('detailTable').textContent = tableNum;
             document.getElementById('explanationText').textContent = explanation;
 
-            // Hide chart for quick results (PS ≤ 0.5)
+            // Hide chart and other sections for quick results (PS ≤ 0.5)
             document.getElementById('chartSection').classList.add('hidden');
+            document.getElementById('decisionTreeSection').classList.add('hidden');
+            document.getElementById('proximitySection').classList.add('hidden');
         }
 
         function displayResult(category, explanation, tableNum) {
@@ -1961,6 +2181,348 @@
                     <div class="legend-color" style="background:#DC2626;border-radius:50%"></div>
                     <span>Votre équipement</span>
                 </div>`;
+        }
+
+        // =====================================================
+        // DECISION TREE - Arbre de décision
+        // =====================================================
+
+        function buildDecisionTree(tableNum, category) {
+            const container = document.getElementById('decisionTree');
+            if (!container) return;
+
+            const nodes = [];
+
+            // Step 1: Equipment type
+            nodes.push({
+                question: 'Type d\'équipement',
+                answer: state.equipmentType === 'vessel' ? 'Récipient' : 'Tuyauterie',
+                badge: state.equipmentType === 'vessel' ? 'Tableaux 1-4' : 'Tableaux 6-9'
+            });
+
+            // Step 2: Fluid type
+            nodes.push({
+                question: 'Type de fluide',
+                answer: state.fluidType === 'gas' ? 'Gaz' : 'Liquide',
+                badge: state.fluidType === 'gas' ? 'Pression vapeur > 0,5 bar' : 'Autres fluides'
+            });
+
+            // Step 3: Fluid group
+            nodes.push({
+                question: 'Groupe de fluide',
+                answer: state.fluidGroup === 'group1' ? 'Groupe 1 (Dangereux)' : 'Groupe 2 (Non dangereux)',
+                badge: state.fluidGroup === 'group1' ? 'Explosif, inflammable, toxique...' : 'Air, azote, eau...'
+            });
+
+            // Step 4: PS check
+            nodes.push({
+                question: 'Pression maximale admissible (PS)',
+                answer: `${state.ps} bar`,
+                badge: state.ps <= 0.5 ? 'PS ≤ 0,5 bar → Non soumis' : 'PS > 0,5 bar → Continue'
+            });
+
+            // Step 5: V or DN check
+            if (state.equipmentType === 'vessel') {
+                const psv = state.ps * state.v;
+                nodes.push({
+                    question: 'Volume (V) et calcul PS×V',
+                    answer: `V = ${state.v} L → PS×V = ${psv.toFixed(2)} bar.L`,
+                    badge: `Tableau ${tableNum}`
+                });
+            } else {
+                const psdn = state.ps * state.dn;
+                nodes.push({
+                    question: 'Dimension nominale (DN) et calcul PS×DN',
+                    answer: `DN ${state.dn} → PS×DN = ${psdn.toFixed(2)}`,
+                    badge: `Tableau ${tableNum}`
+                });
+            }
+
+            // Step 6: Special cases if any
+            if (state.specialCases.length > 0) {
+                const caseLabels = {
+                    'unstable_gas': 'Gaz instable',
+                    'unstable_gas_piping': 'Gaz instable (tuyauterie)',
+                    'extinguisher': 'Extincteur portable',
+                    'breathing': 'Bouteille respiratoire',
+                    'high_temp': 'Température > 350°C'
+                };
+                const appliedCases = state.specialCases.map(c => caseLabels[c] || c).join(', ');
+                nodes.push({
+                    question: 'Cas particuliers appliqués',
+                    answer: appliedCases,
+                    badge: 'Reclassification possible'
+                });
+            }
+
+            // Final node: Result
+            nodes.push({
+                question: 'Classification finale',
+                answer: category,
+                final: true
+            });
+
+            // Render nodes
+            container.innerHTML = nodes.map((node, index) => `
+                <div class="decision-node ${node.final ? 'final' : ''}">
+                    <div class="decision-node-connector">
+                        <div class="decision-node-dot"></div>
+                        <div class="decision-node-line"></div>
+                    </div>
+                    <div class="decision-node-content">
+                        <div class="decision-node-question">${node.question}</div>
+                        <div class="decision-node-answer">
+                            ${node.answer}
+                            ${node.badge ? `<span class="badge">${node.badge}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // =====================================================
+        // PROXIMITY INDICATOR - Indicateur de proximité
+        // =====================================================
+
+        function getThresholds(tableNum) {
+            // Returns the thresholds for each table as PS×V or PS×DN values
+            switch(tableNum) {
+                case 1: // Vessel - Gas - Group 2
+                    return {
+                        thresholds: [
+                            { value: 50, label: 'Art. 4§3', category: 'Article 4§3' },
+                            { value: 1000, label: 'Cat I', category: 'Catégorie I' },
+                            { value: Infinity, label: 'Cat II', category: 'Catégorie II' }
+                        ],
+                        psThresholds: [
+                            { value: 200, label: 'PS > 200 → Cat II' },
+                            { value: 1000, label: 'PS > 1000 → Cat III' }
+                        ]
+                    };
+                case 2: // Vessel - Gas - Group 1
+                    return {
+                        thresholds: [
+                            { value: 25, label: 'Art. 4§3', category: 'Article 4§3' },
+                            { value: 200, label: 'Cat I', category: 'Catégorie I' },
+                            { value: 1000, label: 'Cat II', category: 'Catégorie II' },
+                            { value: 3000, label: 'Cat III', category: 'Catégorie III' },
+                            { value: Infinity, label: 'Cat IV', category: 'Catégorie IV' }
+                        ],
+                        psThresholds: [
+                            { value: 3000, label: 'PS > 3000 → Cat IV' }
+                        ]
+                    };
+                case 3: // Vessel - Liquid - Group 2
+                    return {
+                        thresholds: [
+                            { value: 200, label: 'Art. 4§3', category: 'Article 4§3' },
+                            { value: 10000, label: 'Cat I', category: 'Catégorie I' },
+                            { value: Infinity, label: 'Cat II', category: 'Catégorie II' }
+                        ],
+                        psThresholds: [
+                            { value: 500, label: 'PS > 500 → Cat III' }
+                        ]
+                    };
+                case 4: // Vessel - Liquid - Group 1
+                    return {
+                        thresholds: [
+                            { value: 10000, label: 'Cat I', category: 'Catégorie I' },
+                            { value: Infinity, label: 'Cat II', category: 'Catégorie II' }
+                        ],
+                        psThresholds: [
+                            { value: 10, label: 'PS ≤ 10 → Art. 4§3' },
+                            { value: 500, label: 'PS > 500 → Cat II' }
+                        ]
+                    };
+                case 6: // Piping - Gas - Group 2
+                    return {
+                        thresholds: [
+                            { value: 1000, label: 'Cat I', category: 'Catégorie I' },
+                            { value: 2500, label: 'Cat II', category: 'Catégorie II' },
+                            { value: Infinity, label: 'Cat III', category: 'Catégorie III' }
+                        ],
+                        dnThreshold: 25
+                    };
+                case 7: // Piping - Gas - Group 1
+                    return {
+                        thresholds: [
+                            { value: 1000, label: 'Cat I', category: 'Catégorie I' },
+                            { value: 3500, label: 'Cat II', category: 'Catégorie II' },
+                            { value: Infinity, label: 'Cat III', category: 'Catégorie III' }
+                        ],
+                        dnThreshold: 32
+                    };
+                case 8: // Piping - Liquid - Group 2
+                    return {
+                        thresholds: [
+                            { value: 2000, label: 'Cat I', category: 'Catégorie I' },
+                            { value: Infinity, label: 'Cat II', category: 'Catégorie II' }
+                        ],
+                        psThresholds: [
+                            { value: 10, label: 'PS ≤ 10 → Art. 4§3' },
+                            { value: 500, label: 'PS > 500 → Cat III' }
+                        ],
+                        dnThreshold: 25
+                    };
+                case 9: // Piping - Liquid - Group 1
+                    return {
+                        thresholds: [
+                            { value: 5000, label: 'Cat I', category: 'Catégorie I' },
+                            { value: Infinity, label: 'Cat II', category: 'Catégorie II' }
+                        ],
+                        psThresholds: [
+                            { value: 10, label: 'PS ≤ 10 → Art. 4§3' },
+                            { value: 500, label: 'PS > 500 → Cat II' }
+                        ]
+                    };
+                default:
+                    return { thresholds: [] };
+            }
+        }
+
+        function buildProximityIndicator(tableNum, category) {
+            const barWrapper = document.getElementById('proximityBarWrapper');
+            const infoContainer = document.getElementById('proximityInfo');
+            if (!barWrapper || !infoContainer) return;
+
+            const thresholdConfig = getThresholds(tableNum);
+            const thresholds = thresholdConfig.thresholds;
+
+            if (!thresholds || thresholds.length === 0) {
+                document.getElementById('proximitySection').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('proximitySection').classList.remove('hidden');
+
+            // Calculate current value (PS×V or PS×DN)
+            const currentValue = state.equipmentType === 'vessel'
+                ? state.ps * state.v
+                : state.ps * state.dn;
+
+            // Find current position and next threshold
+            let currentThresholdIndex = 0;
+            let prevThreshold = 0;
+            let nextThreshold = thresholds[0].value;
+
+            for (let i = 0; i < thresholds.length; i++) {
+                if (currentValue <= thresholds[i].value) {
+                    currentThresholdIndex = i;
+                    nextThreshold = thresholds[i].value;
+                    prevThreshold = i > 0 ? thresholds[i - 1].value : 0;
+                    break;
+                }
+                prevThreshold = thresholds[i].value;
+            }
+
+            // Calculate percentage within current zone
+            let percentInZone = 0;
+            let distanceToNext = 0;
+            let marginText = '';
+            let marginClass = 'safe';
+
+            if (nextThreshold !== Infinity) {
+                distanceToNext = nextThreshold - currentValue;
+                const zoneRange = nextThreshold - prevThreshold;
+                percentInZone = ((currentValue - prevThreshold) / zoneRange) * 100;
+
+                // Determine margin status
+                const marginPercent = ((nextThreshold - currentValue) / nextThreshold) * 100;
+                if (marginPercent < 10) {
+                    marginClass = 'danger';
+                    marginText = 'Très proche de la limite';
+                } else if (marginPercent < 25) {
+                    marginClass = 'warning';
+                    marginText = 'Proche de la limite';
+                } else {
+                    marginClass = 'safe';
+                    marginText = 'Marge confortable';
+                }
+            } else {
+                percentInZone = 50; // In the highest category
+                marginText = 'Catégorie maximale atteinte';
+                marginClass = 'danger';
+            }
+
+            // Build the bar visualization
+            const unit = state.equipmentType === 'vessel' ? 'bar.L' : '';
+            const paramLabel = state.equipmentType === 'vessel' ? 'PS×V' : 'PS×DN';
+
+            // Create gradient bar showing zones
+            let barHTML = '<div class="proximity-bar-label">';
+            barHTML += `<span>${paramLabel} = ${currentValue.toFixed(2)} ${unit}</span>`;
+            if (nextThreshold !== Infinity) {
+                barHTML += `<span>Limite: ${nextThreshold} ${unit}</span>`;
+            }
+            barHTML += '</div>';
+
+            // Build multi-zone bar
+            const maxDisplayValue = Math.min(
+                thresholds.filter(t => t.value !== Infinity).slice(-1)[0]?.value * 1.2 || 10000,
+                currentValue * 2
+            );
+
+            barHTML += '<div class="proximity-bar" style="position: relative;">';
+
+            // Add zone segments
+            let leftPos = 0;
+            thresholds.forEach((threshold, i) => {
+                const prevVal = i === 0 ? 0 : thresholds[i - 1].value;
+                const segmentEnd = threshold.value === Infinity ? maxDisplayValue : Math.min(threshold.value, maxDisplayValue);
+                const segmentWidth = ((segmentEnd - prevVal) / maxDisplayValue) * 100;
+
+                if (segmentWidth > 0) {
+                    const color = categoryColors[threshold.category]?.fill || '#F3F4F6';
+                    barHTML += `<div style="position: absolute; left: ${leftPos}%; width: ${segmentWidth}%; height: 100%; background: ${color};"></div>`;
+                    leftPos += segmentWidth;
+                }
+            });
+
+            // Add marker for current position
+            const markerPos = Math.min((currentValue / maxDisplayValue) * 100, 98);
+            barHTML += `<div class="proximity-bar-marker" style="left: ${markerPos}%;"></div>`;
+            barHTML += '</div>';
+
+            barWrapper.innerHTML = barHTML;
+
+            // Build info cards
+            let infoHTML = '';
+
+            infoHTML += `
+                <div class="proximity-info-item">
+                    <div class="proximity-info-label">Valeur actuelle</div>
+                    <div class="proximity-info-value">${currentValue.toFixed(2)} ${unit}</div>
+                </div>
+            `;
+
+            if (nextThreshold !== Infinity) {
+                infoHTML += `
+                    <div class="proximity-info-item">
+                        <div class="proximity-info-label">Distance au seuil suivant</div>
+                        <div class="proximity-info-value ${marginClass}">${distanceToNext.toFixed(2)} ${unit}</div>
+                    </div>
+                `;
+
+                const nextCategory = thresholds[currentThresholdIndex]?.category;
+                if (nextCategory && currentThresholdIndex < thresholds.length - 1) {
+                    const categoryAfterNext = thresholds[currentThresholdIndex + 1]?.category || 'Catégorie supérieure';
+                    infoHTML += `
+                        <div class="proximity-info-item">
+                            <div class="proximity-info-label">Catégorie suivante si dépassement</div>
+                            <div class="proximity-info-value">${categoryAfterNext.replace('Catégorie ', 'Cat ')}</div>
+                        </div>
+                    `;
+                }
+            }
+
+            infoHTML += `
+                <div class="proximity-info-item">
+                    <div class="proximity-info-label">Statut de marge</div>
+                    <div class="proximity-info-value ${marginClass}">${marginText}</div>
+                </div>
+            `;
+
+            infoContainer.innerHTML = infoHTML;
         }
     </script>
 
