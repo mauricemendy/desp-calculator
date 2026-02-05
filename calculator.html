@@ -588,6 +588,15 @@
             border-radius: 3px;
             border: 1px solid rgba(0,0,0,0.1);
         }
+        .chart-note {
+            margin-top: var(--space-3);
+            padding: var(--space-3);
+            background: #FEF3C7;
+            border-left: 3px solid #D97706;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            color: #92400E;
+        }
 
         @media (max-width: 768px) {
             .container {
@@ -884,6 +893,7 @@
                     <div class="chart-container">
                         <canvas id="zoneChart" class="chart-canvas"></canvas>
                         <div class="chart-legend" id="chartLegend"></div>
+                        <div class="chart-note hidden" id="chartNote"></div>
                     </div>
                 </div>
 
@@ -1474,14 +1484,17 @@
                 console.error('Configuration non gérée:', state);
             }
             
+            let originalCategory = category;
+            let wasReclassified = false;
+
             if (category !== 'Erreur de calcul') {
-                const originalCategory = category;
                 category = applySpecialCases(category);
                 if (originalCategory !== category) {
                     explanation += ` (Reclassification appliquée suite aux cas particuliers)`;
+                    wasReclassified = true;
                 }
             }
-            
+
             state.finalCategory = category;
             displayResult(category, explanation, tableNum);
 
@@ -1494,7 +1507,7 @@
 
             // Draw zone chart
             const param = state.equipmentType === 'vessel' ? state.v : state.dn;
-            drawZoneChart(tableNum, state.ps, param);
+            drawZoneChart(tableNum, state.ps, param, wasReclassified, originalCategory, category);
         }
 
         function displayQuickResult(category, explanation, tableNum) {
@@ -1695,7 +1708,7 @@
             return match ? parseInt(match[0]) : null;
         }
 
-        function drawZoneChart(tableStr, ps, param) {
+        function drawZoneChart(tableStr, ps, param, wasReclassified = false, originalCategory = null, finalCategory = null) {
             const tableNum = getTableNumber(tableStr);
             if (!tableNum || !chartConfigs[tableNum]) {
                 document.getElementById('chartSection').classList.add('hidden');
@@ -1703,6 +1716,15 @@
             }
 
             document.getElementById('chartSection').classList.remove('hidden');
+
+            // Handle reclassification note
+            const chartNote = document.getElementById('chartNote');
+            if (wasReclassified && originalCategory && finalCategory) {
+                chartNote.innerHTML = `<strong>Note :</strong> Le diagramme montre la classification standard (${originalCategory}). Votre équipement a été reclassifié en <strong>${finalCategory}</strong> suite aux cas particuliers sélectionnés.`;
+                chartNote.classList.remove('hidden');
+            } else {
+                chartNote.classList.add('hidden');
+            }
 
             const canvas = document.getElementById('zoneChart');
             if (!canvas) return;
