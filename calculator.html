@@ -598,6 +598,171 @@
             color: #92400E;
         }
 
+        /* PROXIMITY SECTION */
+        .proximity-section {
+            margin-top: var(--space-6);
+        }
+        .proximity-bar-wrapper {
+            background: var(--bg-surface);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+        }
+        .proximity-current-value {
+            text-align: center;
+            margin-bottom: var(--space-3);
+        }
+        .proximity-current-value .label {
+            font-size: 13px;
+            color: var(--color-gray-500);
+        }
+        .proximity-current-value .value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--color-gray-900);
+            margin-left: 8px;
+        }
+        .proximity-bar-track {
+            position: relative;
+            height: 32px;
+            background: var(--color-gray-100);
+            border-radius: 16px;
+            overflow: visible;
+            margin: var(--space-4) 0;
+            border: 1px solid var(--color-gray-200);
+        }
+        .proximity-bar-fill {
+            height: 100%;
+            border-radius: 16px;
+            transition: width 0.5s ease;
+        }
+        .proximity-marker {
+            position: absolute;
+            top: -6px;
+            width: 6px;
+            height: 44px;
+            background: #DC2626;
+            border-radius: 3px;
+            transform: translateX(-50%);
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #DC2626;
+        }
+        .proximity-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--color-gray-500);
+            padding: 0 4px;
+        }
+        .proximity-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3);
+            margin-top: var(--space-4);
+        }
+        .proximity-info-item {
+            padding: var(--space-3);
+            background: var(--color-gray-50);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+        }
+        .proximity-info-item .label {
+            color: var(--color-gray-500);
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+        .proximity-info-item .value {
+            font-weight: 600;
+            color: var(--color-gray-900);
+        }
+        .proximity-info-item .detail {
+            font-size: 11px;
+            color: var(--color-gray-400);
+            margin-top: 2px;
+        }
+
+        /* DECISION TREE */
+        .decision-tree-section {
+            margin-top: var(--space-6);
+        }
+        .decision-tree {
+            background: var(--bg-surface);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+        }
+        .tree-node {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            position: relative;
+            margin-left: var(--space-4);
+        }
+        .tree-node:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 13px;
+            top: 40px;
+            bottom: -12px;
+            width: 2px;
+            background: var(--color-gray-200);
+        }
+        .tree-node-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .tree-node-icon.info {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+        .tree-node-icon.pass {
+            background: #D1FAE5;
+            color: #059669;
+        }
+        .tree-node-icon.fail {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+        .tree-node-icon.result {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+        .tree-node-icon.warning {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+        .tree-node-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .tree-node-label {
+            font-size: 13px;
+            color: var(--color-gray-500);
+            margin-bottom: 2px;
+        }
+        .tree-node-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-gray-900);
+        }
+        .tree-node.decisive {
+            background: var(--color-primary-light);
+            border-radius: var(--radius-md);
+        }
+        .tree-node.decisive .tree-node-value {
+            color: var(--color-primary-dark);
+        }
+        .tree-node.decisive::after {
+            background: var(--color-primary) !important;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: var(--space-4);
@@ -637,6 +802,12 @@
             }
             .chart-canvas {
                 height: 300px;
+            }
+            .proximity-info {
+                grid-template-columns: 1fr;
+            }
+            .tree-node {
+                margin-left: var(--space-2);
             }
         }
     </style>
@@ -895,6 +1066,24 @@
                         <div class="chart-legend" id="chartLegend"></div>
                         <div class="chart-note hidden" id="chartNote"></div>
                     </div>
+                </div>
+
+                <!-- Proximity Indicator -->
+                <div class="proximity-section hidden" id="proximitySection">
+                    <div class="chart-section-title">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
+                        Indicateur de proximité
+                    </div>
+                    <div id="proximityContent"></div>
+                </div>
+
+                <!-- Decision Tree -->
+                <div class="decision-tree-section hidden" id="decisionTreeSection">
+                    <div class="chart-section-title">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="14"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M12 14l-6 4M12 14l6 4"/></svg>
+                        Arbre de décision
+                    </div>
+                    <div id="decisionTreeContent"></div>
                 </div>
 
                 <div class="btn-group">
@@ -1508,6 +1697,19 @@
             // Draw zone chart
             const param = state.equipmentType === 'vessel' ? state.v : state.dn;
             drawZoneChart(tableNum, state.ps, param, wasReclassified, originalCategory, category);
+
+            // Proximity indicator
+            const tableNumInt = getTableNumber(tableNum);
+            if (tableNumInt) {
+                const proximityData = computeProximity(tableNumInt, state.ps, param, category);
+                renderProximity(proximityData);
+            }
+
+            // Decision tree
+            if (tableNumInt) {
+                const treeNodes = buildDecisionTree(tableNumInt, state.ps, param, wasReclassified, originalCategory, category);
+                renderDecisionTree(treeNodes);
+            }
         }
 
         function displayQuickResult(category, explanation, tableNum) {
@@ -1527,8 +1729,10 @@
             document.getElementById('detailTable').textContent = tableNum;
             document.getElementById('explanationText').textContent = explanation;
 
-            // Hide chart for quick results (PS ≤ 0.5)
+            // Hide chart, proximity and decision tree for quick results (PS ≤ 0.5)
             document.getElementById('chartSection').classList.add('hidden');
+            document.getElementById('proximitySection').classList.add('hidden');
+            document.getElementById('decisionTreeSection').classList.add('hidden');
         }
 
         function displayResult(category, explanation, tableNum) {
@@ -1927,6 +2131,352 @@
 
             // Build legend
             buildChartLegend(tableNum, finalCategory);
+        }
+
+        // =====================================================
+        // PROXIMITY INDICATOR
+        // =====================================================
+
+        function computeProximity(tableNum, ps, param, category) {
+            const product = ps * param;
+            const isVessel = [1,2,3,4].includes(tableNum);
+            const productLabel = isVessel ? 'PS\u00d7V' : 'PS\u00d7DN';
+            const productUnit = isVessel ? 'bar.L' : '';
+
+            // Product-based thresholds for each table
+            // Each entry: { value, below: category below threshold, above: category above }
+            const allThresholds = {
+                1: [
+                    { value: 50, below: 'Article 4\u00a73', above: 'Cat\u00e9gorie I' },
+                    { value: 1000, below: 'Cat\u00e9gorie I', above: 'Cat\u00e9gorie II' }
+                ],
+                2: [
+                    { value: 25, below: 'Article 4\u00a73', above: 'Cat\u00e9gorie I' },
+                    { value: 200, below: 'Cat\u00e9gorie I', above: 'Cat\u00e9gorie II' },
+                    { value: 1000, below: 'Cat\u00e9gorie II', above: 'Cat\u00e9gorie III' },
+                    { value: 3000, below: 'Cat\u00e9gorie III', above: 'Cat\u00e9gorie IV' }
+                ],
+                3: [
+                    { value: 200, below: 'Article 4\u00a73', above: 'Cat\u00e9gorie I' },
+                    { value: 10000, below: 'Cat\u00e9gorie I', above: 'Cat\u00e9gorie II' }
+                ],
+                4: [
+                    { value: 10000, below: 'Cat\u00e9gorie I', above: 'Cat\u00e9gorie II' }
+                ],
+                6: [
+                    { value: 1000, below: 'Cat\u00e9gorie I', above: 'Cat\u00e9gorie II' },
+                    { value: 2500, below: 'Cat\u00e9gorie II', above: 'Cat\u00e9gorie III' }
+                ],
+                7: [
+                    { value: 1000, below: 'Cat\u00e9gorie I', above: 'Cat\u00e9gorie II' },
+                    { value: 3500, below: 'Cat\u00e9gorie II', above: 'Cat\u00e9gorie III' }
+                ],
+                8: [
+                    { value: 2000, below: 'Cat\u00e9gorie I', above: 'Cat\u00e9gorie II' }
+                ],
+                9: [
+                    { value: 5000, below: 'Cat\u00e9gorie I', above: 'Cat\u00e9gorie II' }
+                ]
+            };
+
+            const thresholds = allThresholds[tableNum] || [];
+
+            let lowerT = null;
+            let upperT = null;
+
+            for (const t of thresholds) {
+                if (product > t.value) {
+                    lowerT = t;
+                }
+            }
+            for (const t of thresholds) {
+                if (product <= t.value) {
+                    upperT = t;
+                    break;
+                }
+            }
+
+            // Calculate percentage position
+            let percentage = 50;
+            if (lowerT && upperT) {
+                percentage = ((product - lowerT.value) / (upperT.value - lowerT.value)) * 100;
+            } else if (upperT && !lowerT) {
+                percentage = (product / upperT.value) * 100;
+            } else if (lowerT && !upperT) {
+                percentage = 100;
+            }
+
+            return {
+                product: product,
+                productLabel: productLabel,
+                productUnit: productUnit,
+                lowerThreshold: lowerT,
+                upperThreshold: upperT,
+                lowerDistance: lowerT ? product - lowerT.value : null,
+                upperDistance: upperT ? upperT.value - product : null,
+                percentage: Math.max(2, Math.min(98, percentage)),
+                category: category
+            };
+        }
+
+        function renderProximity(data) {
+            const section = document.getElementById('proximitySection');
+            const content = document.getElementById('proximityContent');
+
+            if (!data.lowerThreshold && !data.upperThreshold) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+
+            const catColor = categoryColors[data.category] || categoryColors['Cat\u00e9gorie I'];
+
+            let html = '<div class="proximity-bar-wrapper">';
+
+            // Current value
+            html += '<div class="proximity-current-value">' +
+                '<span class="label">Valeur actuelle :</span>' +
+                '<span class="value">' + data.productLabel + ' = ' + data.product.toFixed(2) + ' ' + data.productUnit + '</span>' +
+                '</div>';
+
+            // Bar
+            html += '<div class="proximity-bar-track">' +
+                '<div class="proximity-bar-fill" style="width:' + data.percentage + '%;background:' + catColor.fill + ';border:1px solid ' + catColor.stroke + '"></div>' +
+                '<div class="proximity-marker" style="left:' + data.percentage + '%"></div>' +
+                '</div>';
+
+            // Labels
+            html += '<div class="proximity-labels">';
+            if (data.lowerThreshold) {
+                html += '<span>' + data.lowerThreshold.below + ' (' + data.lowerThreshold.value + ' ' + data.productUnit + ')</span>';
+            } else {
+                html += '<span>0</span>';
+            }
+            html += '<span style="font-weight:600;color:var(--color-gray-900);">' + data.category + '</span>';
+            if (data.upperThreshold) {
+                html += '<span>' + data.upperThreshold.above + ' (' + data.upperThreshold.value + ' ' + data.productUnit + ')</span>';
+            } else {
+                html += '<span></span>';
+            }
+            html += '</div>';
+
+            // Distance info cards
+            html += '<div class="proximity-info">';
+
+            if (data.lowerDistance !== null) {
+                const pctFromLower = data.lowerThreshold && data.upperThreshold
+                    ? ((data.lowerDistance / (data.upperThreshold.value - data.lowerThreshold.value)) * 100).toFixed(1)
+                    : null;
+                html += '<div class="proximity-info-item">' +
+                    '<div class="label">Marge inf\u00e9rieure</div>' +
+                    '<div class="value">' + data.lowerDistance.toFixed(2) + ' ' + data.productUnit + '</div>' +
+                    '<div class="detail">Au-dessus du seuil ' + data.lowerThreshold.value + (pctFromLower ? ' (' + pctFromLower + '%)' : '') + '</div>' +
+                    '</div>';
+            }
+
+            if (data.upperDistance !== null) {
+                const pctToUpper = data.lowerThreshold && data.upperThreshold
+                    ? ((data.upperDistance / (data.upperThreshold.value - data.lowerThreshold.value)) * 100).toFixed(1)
+                    : null;
+                html += '<div class="proximity-info-item">' +
+                    '<div class="label">Marge sup\u00e9rieure</div>' +
+                    '<div class="value">' + data.upperDistance.toFixed(2) + ' ' + data.productUnit + '</div>' +
+                    '<div class="detail">Avant le seuil ' + data.upperThreshold.value + (pctToUpper ? ' (' + pctToUpper + '%)' : '') + '</div>' +
+                    '</div>';
+            }
+
+            html += '</div></div>';
+            content.innerHTML = html;
+        }
+
+        // =====================================================
+        // DECISION TREE
+        // =====================================================
+
+        function buildDecisionTree(tableNum, ps, param, wasReclassified, originalCategory, finalCategory) {
+            const isVessel = [1,2,3,4].includes(tableNum);
+            const product = ps * param;
+            const productLabel = isVessel ? 'PS\u00d7V' : 'PS\u00d7DN';
+            const paramLabel = isVessel ? 'V' : 'DN';
+            const paramUnit = isVessel ? 'L' : '';
+
+            const decisionChecks = {
+                1: [
+                    { test: function() { return ps <= 0.5; }, label: 'PS \u2264 0,5 bar ?', yesResult: 'Non soumis' },
+                    { test: function() { return param <= 1; }, label: paramLabel + ' \u2264 1 ' + paramUnit + ' ?', yesResult: 'Article 4\u00a73' },
+                    { test: function() { return product <= 50; }, label: productLabel + ' \u2264 50 bar.L ?', yesResult: 'Article 4\u00a73' },
+                    { test: function() { return ps > 1000; }, label: 'PS > 1000 bar ?', yesResult: 'Cat\u00e9gorie III' },
+                    { test: function() { return product > 1000 || ps > 200; }, label: productLabel + ' > 1000 ou PS > 200 ?', yesResult: 'Cat\u00e9gorie II' },
+                    { test: function() { return true; }, label: 'Par d\u00e9faut', yesResult: 'Cat\u00e9gorie I' }
+                ],
+                2: [
+                    { test: function() { return ps <= 0.5; }, label: 'PS \u2264 0,5 bar ?', yesResult: 'Non soumis' },
+                    { test: function() { return param <= 1; }, label: paramLabel + ' \u2264 1 ' + paramUnit + ' ?', yesResult: 'Article 4\u00a73' },
+                    { test: function() { return product <= 25; }, label: productLabel + ' \u2264 25 bar.L ?', yesResult: 'Article 4\u00a73' },
+                    { test: function() { return ps > 3000 || product > 3000; }, label: 'PS > 3000 ou ' + productLabel + ' > 3000 ?', yesResult: 'Cat\u00e9gorie IV' },
+                    { test: function() { return product > 1000; }, label: productLabel + ' > 1000 bar.L ?', yesResult: 'Cat\u00e9gorie III' },
+                    { test: function() { return product > 200; }, label: productLabel + ' > 200 bar.L ?', yesResult: 'Cat\u00e9gorie II' },
+                    { test: function() { return true; }, label: 'Par d\u00e9faut', yesResult: 'Cat\u00e9gorie I' }
+                ],
+                3: [
+                    { test: function() { return ps <= 0.5; }, label: 'PS \u2264 0,5 bar ?', yesResult: 'Non soumis' },
+                    { test: function() { return param <= 1; }, label: paramLabel + ' \u2264 1 ' + paramUnit + ' ?', yesResult: 'Article 4\u00a73' },
+                    { test: function() { return product <= 200; }, label: productLabel + ' \u2264 200 bar.L ?', yesResult: 'Article 4\u00a73' },
+                    { test: function() { return ps > 500; }, label: 'PS > 500 bar ?', yesResult: 'Cat\u00e9gorie III' },
+                    { test: function() { return product > 10000; }, label: productLabel + ' > 10000 bar.L ?', yesResult: 'Cat\u00e9gorie II' },
+                    { test: function() { return true; }, label: 'Par d\u00e9faut', yesResult: 'Cat\u00e9gorie I' }
+                ],
+                4: [
+                    { test: function() { return ps <= 0.5; }, label: 'PS \u2264 0,5 bar ?', yesResult: 'Non soumis' },
+                    { test: function() { return ps <= 10; }, label: 'PS \u2264 10 bar ?', yesResult: 'Article 4\u00a73' },
+                    { test: function() { return ps > 500; }, label: 'PS > 500 bar ?', yesResult: 'Cat\u00e9gorie II' },
+                    { test: function() { return product > 10000; }, label: productLabel + ' > 10000 bar.L ?', yesResult: 'Cat\u00e9gorie II' },
+                    { test: function() { return true; }, label: 'Par d\u00e9faut', yesResult: 'Cat\u00e9gorie I' }
+                ],
+                6: [
+                    { test: function() { return ps <= 0.5; }, label: 'PS \u2264 0,5 bar ?', yesResult: 'Non soumis' },
+                    { test: function() { return param <= 25; }, label: 'DN \u2264 25 ?', yesResult: 'Article 4\u00a73' },
+                    { test: function() { return product > 2500; }, label: productLabel + ' > 2500 ?', yesResult: 'Cat\u00e9gorie III' },
+                    { test: function() { return product > 1000; }, label: productLabel + ' > 1000 ?', yesResult: 'Cat\u00e9gorie II' },
+                    { test: function() { return true; }, label: 'Par d\u00e9faut', yesResult: 'Cat\u00e9gorie I' }
+                ],
+                7: [
+                    { test: function() { return ps <= 0.5; }, label: 'PS \u2264 0,5 bar ?', yesResult: 'Non soumis' },
+                    { test: function() { return param <= 32; }, label: 'DN \u2264 32 ?', yesResult: 'Article 4\u00a73' },
+                    { test: function() { return product > 3500; }, label: productLabel + ' > 3500 ?', yesResult: 'Cat\u00e9gorie III' },
+                    { test: function() { return product > 1000; }, label: productLabel + ' > 1000 ?', yesResult: 'Cat\u00e9gorie II' },
+                    { test: function() { return true; }, label: 'Par d\u00e9faut', yesResult: 'Cat\u00e9gorie I' }
+                ],
+                8: [
+                    { test: function() { return ps <= 0.5; }, label: 'PS \u2264 0,5 bar ?', yesResult: 'Non soumis' },
+                    { test: function() { return param <= 25; }, label: 'DN \u2264 25 ?', yesResult: 'Article 4\u00a73' },
+                    { test: function() { return ps <= 10; }, label: 'PS \u2264 10 bar ?', yesResult: 'Article 4\u00a73' },
+                    { test: function() { return ps > 500; }, label: 'PS > 500 bar ?', yesResult: 'Cat\u00e9gorie III' },
+                    { test: function() { return product > 2000; }, label: productLabel + ' > 2000 ?', yesResult: 'Cat\u00e9gorie II' },
+                    { test: function() { return true; }, label: 'Par d\u00e9faut', yesResult: 'Cat\u00e9gorie I' }
+                ],
+                9: [
+                    { test: function() { return ps <= 0.5; }, label: 'PS \u2264 0,5 bar ?', yesResult: 'Non soumis' },
+                    { test: function() { return ps <= 10; }, label: 'PS \u2264 10 bar ?', yesResult: 'Article 4\u00a73' },
+                    { test: function() { return ps > 500; }, label: 'PS > 500 bar ?', yesResult: 'Cat\u00e9gorie II' },
+                    { test: function() { return product > 5000; }, label: productLabel + ' > 5000 ?', yesResult: 'Cat\u00e9gorie II' },
+                    { test: function() { return true; }, label: 'Par d\u00e9faut', yesResult: 'Cat\u00e9gorie I' }
+                ]
+            };
+
+            const checks = decisionChecks[tableNum] || [];
+            var nodes = [];
+
+            // Context nodes
+            nodes.push({
+                type: 'info',
+                label: 'Donn\u00e9es d\u2019entr\u00e9e',
+                value: 'PS = ' + ps + ' bar, ' + paramLabel + ' = ' + param + ' ' + paramUnit + ', ' + productLabel + ' = ' + product.toFixed(2)
+            });
+
+            nodes.push({
+                type: 'info',
+                label: 'Tableau appliqu\u00e9',
+                value: 'Tableau ' + tableNum + ' \u2014 ' + (chartConfigs[tableNum] ? chartConfigs[tableNum].subtitle : '')
+            });
+
+            // Process decision checks
+            var decided = false;
+            for (var i = 0; i < checks.length; i++) {
+                if (decided) break;
+                var check = checks[i];
+                var result = check.test();
+
+                if (result) {
+                    nodes.push({
+                        type: 'decisive',
+                        label: check.label,
+                        value: 'Oui \u2192 ' + check.yesResult
+                    });
+                    decided = true;
+                } else {
+                    nodes.push({
+                        type: 'skip',
+                        label: check.label,
+                        value: 'Non \u2192 v\u00e9rification suivante'
+                    });
+                }
+            }
+
+            // Reclassification
+            if (wasReclassified && originalCategory !== finalCategory) {
+                nodes.push({
+                    type: 'warning',
+                    label: 'Reclassification (cas particuliers)',
+                    value: originalCategory + ' \u2192 ' + finalCategory
+                });
+            }
+
+            // Final result
+            nodes.push({
+                type: 'result',
+                label: 'Classification finale',
+                value: finalCategory || originalCategory
+            });
+
+            return nodes;
+        }
+
+        function renderDecisionTree(nodes) {
+            var section = document.getElementById('decisionTreeSection');
+            var content = document.getElementById('decisionTreeContent');
+
+            if (!nodes || nodes.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+
+            var html = '<div class="decision-tree">';
+
+            for (var i = 0; i < nodes.length; i++) {
+                var node = nodes[i];
+                var isDecisive = node.type === 'decisive';
+                var iconClass, icon;
+
+                switch (node.type) {
+                    case 'info':
+                        iconClass = 'info';
+                        icon = '\u2139';
+                        break;
+                    case 'skip':
+                        iconClass = 'fail';
+                        icon = '\u2717';
+                        break;
+                    case 'decisive':
+                        iconClass = 'pass';
+                        icon = '\u2713';
+                        break;
+                    case 'result':
+                        iconClass = 'result';
+                        icon = '\u2605';
+                        break;
+                    case 'warning':
+                        iconClass = 'warning';
+                        icon = '\u26a0';
+                        break;
+                    default:
+                        iconClass = 'info';
+                        icon = '\u2022';
+                }
+
+                html += '<div class="tree-node' + (isDecisive ? ' decisive' : '') + '">' +
+                    '<div class="tree-node-icon ' + iconClass + '">' + icon + '</div>' +
+                    '<div class="tree-node-content">' +
+                    '<div class="tree-node-label">' + node.label + '</div>' +
+                    '<div class="tree-node-value">' + node.value + '</div>' +
+                    '</div></div>';
+            }
+
+            html += '</div>';
+            content.innerHTML = html;
         }
 
         function buildChartLegend(tableNum, finalCategory = null) {
