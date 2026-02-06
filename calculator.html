@@ -763,6 +763,257 @@
             background: var(--color-primary) !important;
         }
 
+        /* HISTORY SECTION */
+        .history-section {
+            margin-top: var(--space-6);
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+        .history-header-actions {
+            display: flex;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+        }
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            background: var(--color-gray-50);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+        .history-item:hover {
+            background: var(--bg-surface);
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-md);
+        }
+        .history-item-check {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--color-primary);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .history-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .history-item-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--color-gray-900);
+            margin-bottom: 2px;
+        }
+        .history-item-meta {
+            font-size: 12px;
+            color: var(--color-gray-500);
+        }
+        .history-item-category {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .history-item-actions {
+            display: flex;
+            gap: var(--space-2);
+            flex-shrink: 0;
+        }
+        .history-item-actions button {
+            background: none;
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            padding: 6px 8px;
+            cursor: pointer;
+            color: var(--color-gray-500);
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .history-item-actions button:hover {
+            border-color: var(--color-gray-400);
+            color: var(--color-gray-900);
+            background: var(--color-gray-50);
+        }
+        .history-item-actions button.delete:hover {
+            border-color: var(--color-error);
+            color: var(--color-error);
+            background: #FEE2E2;
+        }
+        .history-empty {
+            text-align: center;
+            padding: var(--space-8);
+            color: var(--color-gray-400);
+            font-size: 14px;
+        }
+
+        /* COMPARISON */
+        .comparison-container {
+            margin-top: var(--space-6);
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: var(--space-4);
+        }
+        .comparison-card {
+            background: var(--bg-surface);
+            border: 2px solid var(--color-gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+        }
+        .comparison-card-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-gray-900);
+            margin-bottom: var(--space-3);
+            padding-bottom: var(--space-3);
+            border-bottom: 1px solid var(--color-gray-100);
+            text-align: center;
+        }
+        .comparison-card-category {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: var(--space-3);
+            text-align: center;
+        }
+        .comparison-card-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 12px;
+            border-bottom: 1px solid var(--color-gray-50);
+        }
+        .comparison-card-detail .label {
+            color: var(--color-gray-500);
+        }
+        .comparison-card-detail .value {
+            font-weight: 600;
+            color: var(--color-gray-900);
+        }
+
+        /* NOTES & SHARING */
+        .notes-section {
+            margin-top: var(--space-6);
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--color-gray-100);
+        }
+        .notes-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-gray-900);
+            margin-bottom: var(--space-3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .notes-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: var(--space-3);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 13px;
+            color: var(--color-gray-900);
+            resize: vertical;
+            transition: border-color var(--transition-base);
+            background: var(--bg-surface);
+        }
+        .notes-textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--ring-primary);
+        }
+        .notes-textarea::placeholder {
+            color: var(--color-gray-400);
+        }
+        .share-link-container {
+            margin-top: var(--space-4);
+        }
+        .share-link-row {
+            display: flex;
+            gap: var(--space-2);
+            margin-top: var(--space-3);
+        }
+        .share-link-input {
+            flex: 1;
+            height: 40px;
+            padding: 10px 12px;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            color: var(--color-gray-900);
+            background: var(--color-gray-50);
+            font-variant-numeric: tabular-nums;
+        }
+        .share-link-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: var(--ring-primary);
+        }
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 13px;
+            min-height: 36px;
+        }
+        .btn-success {
+            background: var(--color-success);
+            color: white;
+        }
+        .btn-success:hover {
+            background: var(--color-primary-dark);
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--color-gray-900);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--radius-lg);
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 10000;
+            animation: fadeIn 300ms ease;
+            box-shadow: var(--shadow-lg);
+        }
+        .import-drop-zone {
+            border: 2px dashed var(--color-gray-300);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            text-align: center;
+            color: var(--color-gray-400);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            margin-top: var(--space-3);
+        }
+        .import-drop-zone:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: var(--space-4);
@@ -808,6 +1059,26 @@
             }
             .tree-node {
                 margin-left: var(--space-2);
+            }
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            .history-item {
+                flex-wrap: wrap;
+            }
+            .history-item-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .share-link-row {
+                flex-direction: column;
+            }
+            .history-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .history-header-actions {
+                justify-content: flex-end;
             }
         }
     </style>
@@ -1090,6 +1361,72 @@
                     <button class="btn btn-secondary" onclick="resetTool()"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg> Nouvelle analyse</button>
                     <button class="btn btn-primary" onclick="exportToPDF()"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Exporter en PDF</button>
                 </div>
+
+                <!-- Notes Section -->
+                <div class="notes-section hidden" id="notesSection">
+                    <div class="notes-section-title">
+                        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Notes personnelles
+                    </div>
+                    <textarea class="notes-textarea" id="notesTextarea" placeholder="Ajoutez vos remarques, observations ou commentaires sur ce calcul..."></textarea>
+                </div>
+
+                <!-- Share Section -->
+                <div class="share-link-container hidden" id="shareSection">
+                    <div class="notes-section-title">
+                        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        Partager ce calcul
+                    </div>
+                    <div class="share-link-row">
+                        <input type="text" class="share-link-input" id="shareLinkInput" readonly placeholder="Cliquez sur Generer le lien...">
+                        <button class="btn btn-sm btn-primary" onclick="shareByLink()">Lien</button>
+                        <button class="btn btn-sm btn-secondary" onclick="copyShareLink()">Copier</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Section -->
+        <div class="card history-section hidden" id="historySection">
+            <div class="card-header">
+                <h2 class="card-title">Historique des calculs</h2>
+                <p class="card-subtitle">Retrouvez et comparez vos calculs precedents</p>
+            </div>
+            <div class="card-body">
+                <div class="history-header">
+                    <div style="font-size:13px;color:var(--color-gray-500)" id="historyCount">0 calcul(s)</div>
+                    <div class="history-header-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="showComparison()" id="compareBtn" style="display:none">
+                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                            Comparer
+                        </button>
+                        <button class="btn btn-sm btn-secondary" onclick="exportToCSV()">
+                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                            CSV
+                        </button>
+                        <button class="btn btn-sm btn-secondary" onclick="document.getElementById('importFileInput').click()">
+                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                            Importer
+                        </button>
+                        <input type="file" id="importFileInput" accept=".csv,.json" style="display:none" onchange="importData(event)">
+                        <button class="btn btn-sm btn-secondary delete" onclick="clearHistory()" style="color:var(--color-error);border-color:var(--color-error)">
+                            Vider
+                        </button>
+                    </div>
+                </div>
+                <div class="history-list" id="historyList"></div>
+
+                <!-- Comparison Container -->
+                <div class="comparison-container hidden" id="comparisonContainer">
+                    <div class="chart-section-title">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        Comparaison
+                    </div>
+                    <div class="comparison-grid" id="comparisonGrid"></div>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-secondary" onclick="hideComparison()">Fermer la comparaison</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1146,11 +1483,16 @@
         };
 
         document.addEventListener('DOMContentLoaded', function() {
-            loadState();
+            // Check for shared URL first
+            if (!loadFromURL()) {
+                loadState();
+            }
             setupOptionCards();
             setupInputListeners();
             setupTooltips();
+            setupNotesAutoSave();
             updateStepper();
+            renderHistory();
         });
 
         // Tooltips
@@ -1421,6 +1763,11 @@
                     state.currentStep = 6;
                     saveState();
                     updateStepper();
+                    // Save to history and show notes/share
+                    currentHistoryId = saveToHistory('Non soumis', 'PS ≤ 0,5 bar : équipement non soumis à la directive DESP 2014/68/UE', 'N/A');
+                    document.getElementById('notesSection').classList.remove('hidden');
+                    document.getElementById('shareSection').classList.remove('hidden');
+                    document.getElementById('notesTextarea').value = '';
                     window.scrollTo(0, 0);
                     return;
                 }
@@ -1710,6 +2057,15 @@
                 const treeNodes = buildDecisionTree(tableNumInt, state.ps, param, wasReclassified, originalCategory, category);
                 renderDecisionTree(treeNodes);
             }
+
+            // Save to history and show notes/share
+            if (!skipHistorySave) {
+                currentHistoryId = saveToHistory(category, explanation, tableNum);
+                document.getElementById('notesTextarea').value = '';
+            }
+            skipHistorySave = false;
+            document.getElementById('notesSection').classList.remove('hidden');
+            document.getElementById('shareSection').classList.remove('hidden');
         }
 
         function displayQuickResult(category, explanation, tableNum) {
@@ -1857,7 +2213,15 @@
 
             localStorage.removeItem('desp_calculator_state');
 
+            // Reset new feature states
+            currentHistoryId = null;
+            document.getElementById('notesSection').classList.add('hidden');
+            document.getElementById('shareSection').classList.add('hidden');
+            document.getElementById('notesTextarea').value = '';
+            document.getElementById('shareLinkInput').value = '';
+
             updateStepper();
+            renderHistory();
             window.scrollTo(0, 0);
         }
 
@@ -2512,6 +2876,600 @@
                     <span>Votre équipement</span>
                 </div>`;
         }
+        // =====================================================
+        // NOTES AUTO-SAVE SETUP
+        // =====================================================
+        function setupNotesAutoSave() {
+            var textarea = document.getElementById('notesTextarea');
+            var debounceTimer = null;
+            textarea.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(function() {
+                    saveNotes();
+                }, 500);
+            });
+        }
+
+        // =====================================================
+        // TOAST NOTIFICATION
+        // =====================================================
+        function showToast(message) {
+            var existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            var toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(function() { toast.remove(); }, 3000);
+        }
+
+        // =====================================================
+        // HISTORY MANAGEMENT
+        // =====================================================
+        function getHistory() {
+            try {
+                var data = localStorage.getItem('desp_calculator_history');
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                console.warn('Could not load history', e);
+                return [];
+            }
+        }
+
+        function saveToHistory(category, explanation, tableNum) {
+            var history = getHistory();
+            var entry = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                equipmentType: state.equipmentType,
+                fluidType: state.fluidType,
+                fluidGroup: state.fluidGroup,
+                ps: state.ps,
+                v: state.v,
+                dn: state.dn,
+                specialCases: state.specialCases.slice(),
+                category: category,
+                tableNum: tableNum,
+                explanation: explanation,
+                notes: ''
+            };
+            history.unshift(entry);
+            // Keep max 50 entries
+            if (history.length > 50) history = history.slice(0, 50);
+            try {
+                localStorage.setItem('desp_calculator_history', JSON.stringify(history));
+            } catch (e) {
+                console.warn('Could not save history', e);
+            }
+            renderHistory();
+            return entry.id;
+        }
+
+        var currentHistoryId = null;
+        var skipHistorySave = false;
+
+        function renderHistory() {
+            var history = getHistory();
+            var section = document.getElementById('historySection');
+            var list = document.getElementById('historyList');
+            var countEl = document.getElementById('historyCount');
+
+            if (history.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+            countEl.textContent = history.length + ' calcul(s)';
+
+            var html = '';
+            for (var i = 0; i < history.length; i++) {
+                var item = history[i];
+                var date = new Date(item.date);
+                var dateStr = date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+                var typeLabel = item.equipmentType === 'vessel' ? 'Recipient' : 'Tuyauterie';
+                var fluidLabel = item.fluidType === 'gas' ? 'Gaz' : 'Liquide';
+                var groupLabel = item.fluidGroup === 'group1' ? 'Gr.1' : 'Gr.2';
+                var paramStr = item.equipmentType === 'vessel'
+                    ? 'PS=' + item.ps + ' bar, V=' + item.v + ' L'
+                    : 'PS=' + item.ps + ' bar, DN=' + item.dn;
+
+                var catColor = categoryColors[item.category] || { fill: '#F3F4F6', stroke: '#9CA3AF', text: '#6B7280' };
+
+                html += '<div class="history-item" data-id="' + item.id + '">' +
+                    '<input type="checkbox" class="history-item-check" onclick="event.stopPropagation();updateCompareBtn()" data-id="' + item.id + '">' +
+                    '<div class="history-item-info" onclick="loadHistoryItem(' + item.id + ')">' +
+                    '<div class="history-item-title">' + typeLabel + ' / ' + fluidLabel + ' / ' + groupLabel + '</div>' +
+                    '<div class="history-item-meta">' + paramStr + ' &mdash; ' + dateStr +
+                    (item.notes ? ' &mdash; <em>' + item.notes.substring(0, 40) + (item.notes.length > 40 ? '...' : '') + '</em>' : '') +
+                    '</div></div>' +
+                    '<span class="history-item-category" style="background:' + catColor.fill + ';color:' + catColor.text + ';border:1px solid ' + catColor.stroke + '">' + item.category + '</span>' +
+                    '<div class="history-item-actions">' +
+                    '<button onclick="event.stopPropagation();loadHistoryItem(' + item.id + ')" title="Charger"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg></button>' +
+                    '<button class="delete" onclick="event.stopPropagation();deleteHistoryItem(' + item.id + ')" title="Supprimer"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>' +
+                    '</div></div>';
+            }
+            list.innerHTML = html;
+            updateCompareBtn();
+        }
+
+        function loadHistoryItem(id) {
+            var history = getHistory();
+            var item = null;
+            for (var i = 0; i < history.length; i++) {
+                if (history[i].id === id) { item = history[i]; break; }
+            }
+            if (!item) return;
+
+            state.equipmentType = item.equipmentType;
+            state.fluidType = item.fluidType;
+            state.fluidGroup = item.fluidGroup;
+            state.ps = item.ps;
+            state.v = item.v;
+            state.dn = item.dn;
+            state.specialCases = item.specialCases ? item.specialCases.slice() : [];
+            state.currentStep = 6;
+            state.finalCategory = item.category;
+
+            currentHistoryId = id;
+
+            // Restore UI inputs
+            document.getElementById('psInput').value = item.ps || '';
+            document.getElementById('vInput').value = item.v || '';
+            document.getElementById('dnInput').value = item.dn || '';
+
+            if (item.equipmentType === 'vessel') {
+                document.getElementById('volumeGroup').classList.remove('hidden');
+                document.getElementById('dnGroup').classList.add('hidden');
+            } else {
+                document.getElementById('volumeGroup').classList.add('hidden');
+                document.getElementById('dnGroup').classList.remove('hidden');
+            }
+
+            // Show step 6
+            for (var i = 1; i <= 6; i++) {
+                document.getElementById('step' + i).classList.add('hidden');
+            }
+            document.getElementById('step6').classList.remove('hidden');
+            updateStepper();
+
+            // Recalculate the result (skip saving to history since it already exists)
+            skipHistorySave = true;
+            calculateResult();
+
+            // Restore notes
+            var notesTextarea = document.getElementById('notesTextarea');
+            notesTextarea.value = item.notes || '';
+            document.getElementById('notesSection').classList.remove('hidden');
+            document.getElementById('shareSection').classList.remove('hidden');
+
+            window.scrollTo(0, 0);
+            showToast('Calcul charge depuis l\'historique');
+        }
+
+        function deleteHistoryItem(id) {
+            if (!confirm('Supprimer ce calcul de l\'historique ?')) return;
+            var history = getHistory();
+            history = history.filter(function(h) { return h.id !== id; });
+            try {
+                localStorage.setItem('desp_calculator_history', JSON.stringify(history));
+            } catch (e) {
+                console.warn('Could not save history', e);
+            }
+            renderHistory();
+            showToast('Calcul supprime');
+        }
+
+        function clearHistory() {
+            if (!confirm('Vider tout l\'historique ? Cette action est irreversible.')) return;
+            localStorage.removeItem('desp_calculator_history');
+            renderHistory();
+            showToast('Historique vide');
+        }
+
+        // =====================================================
+        // COMPARISON
+        // =====================================================
+        function getSelectedHistoryIds() {
+            var checks = document.querySelectorAll('.history-item-check:checked');
+            var ids = [];
+            checks.forEach(function(cb) { ids.push(parseInt(cb.dataset.id)); });
+            return ids;
+        }
+
+        function updateCompareBtn() {
+            var ids = getSelectedHistoryIds();
+            var btn = document.getElementById('compareBtn');
+            if (ids.length >= 2 && ids.length <= 4) {
+                btn.style.display = '';
+                btn.textContent = 'Comparer (' + ids.length + ')';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        function showComparison() {
+            var ids = getSelectedHistoryIds();
+            if (ids.length < 2 || ids.length > 4) {
+                showToast('Selectionnez entre 2 et 4 calculs');
+                return;
+            }
+
+            var history = getHistory();
+            var items = [];
+            for (var i = 0; i < ids.length; i++) {
+                for (var j = 0; j < history.length; j++) {
+                    if (history[j].id === ids[i]) {
+                        items.push(history[j]);
+                        break;
+                    }
+                }
+            }
+
+            var grid = document.getElementById('comparisonGrid');
+            var html = '';
+
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var catColor = categoryColors[item.category] || { fill: '#F3F4F6', text: '#6B7280', stroke: '#9CA3AF' };
+                var typeLabel = item.equipmentType === 'vessel' ? 'Recipient' : 'Tuyauterie';
+                var fluidLabel = item.fluidType === 'gas' ? 'Gaz' : 'Liquide';
+                var groupLabel = item.fluidGroup === 'group1' ? 'Groupe 1' : 'Groupe 2';
+                var paramLabel = item.equipmentType === 'vessel' ? 'Volume' : 'DN';
+                var paramValue = item.equipmentType === 'vessel' ? (item.v + ' L') : ('DN ' + item.dn);
+                var product = item.equipmentType === 'vessel' ? (item.ps * item.v) : (item.ps * item.dn);
+                var productLabel = item.equipmentType === 'vessel' ? 'PS x V' : 'PS x DN';
+                var date = new Date(item.date);
+                var dateStr = date.toLocaleDateString('fr-FR');
+
+                html += '<div class="comparison-card" style="border-color:' + catColor.stroke + '">' +
+                    '<div class="comparison-card-title">' + typeLabel + ' / ' + fluidLabel + '</div>' +
+                    '<div class="comparison-card-category" style="color:' + catColor.text + '">' + item.category + '</div>' +
+                    '<div class="comparison-card-detail"><span class="label">Equipement</span><span class="value">' + typeLabel + '</span></div>' +
+                    '<div class="comparison-card-detail"><span class="label">Fluide</span><span class="value">' + fluidLabel + '</span></div>' +
+                    '<div class="comparison-card-detail"><span class="label">Groupe</span><span class="value">' + groupLabel + '</span></div>' +
+                    '<div class="comparison-card-detail"><span class="label">PS</span><span class="value">' + item.ps + ' bar</span></div>' +
+                    '<div class="comparison-card-detail"><span class="label">' + paramLabel + '</span><span class="value">' + paramValue + '</span></div>' +
+                    '<div class="comparison-card-detail"><span class="label">' + productLabel + '</span><span class="value">' + product.toFixed(2) + '</span></div>' +
+                    '<div class="comparison-card-detail"><span class="label">Tableau</span><span class="value">' + item.tableNum + '</span></div>' +
+                    '<div class="comparison-card-detail"><span class="label">Date</span><span class="value">' + dateStr + '</span></div>' +
+                    '</div>';
+            }
+
+            grid.innerHTML = html;
+            document.getElementById('comparisonContainer').classList.remove('hidden');
+            document.getElementById('comparisonContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideComparison() {
+            document.getElementById('comparisonContainer').classList.add('hidden');
+            // Uncheck all
+            document.querySelectorAll('.history-item-check').forEach(function(cb) { cb.checked = false; });
+            updateCompareBtn();
+        }
+
+        // =====================================================
+        // EXPORT CSV
+        // =====================================================
+        function exportToCSV() {
+            var history = getHistory();
+            if (history.length === 0) {
+                showToast('Aucun calcul a exporter');
+                return;
+            }
+
+            var headers = ['Date','Type equipement','Type fluide','Groupe fluide','PS (bar)','Volume (L)','DN','Cas particuliers','Categorie','Tableau','Explication','Notes'];
+            var rows = [headers.join(';')];
+
+            for (var i = 0; i < history.length; i++) {
+                var h = history[i];
+                var date = new Date(h.date).toLocaleDateString('fr-FR') + ' ' + new Date(h.date).toLocaleTimeString('fr-FR');
+                var typeLabel = h.equipmentType === 'vessel' ? 'Recipient' : 'Tuyauterie';
+                var fluidLabel = h.fluidType === 'gas' ? 'Gaz' : 'Liquide';
+                var groupLabel = h.fluidGroup === 'group1' ? 'Groupe 1' : 'Groupe 2';
+                var specialCasesStr = (h.specialCases || []).join(', ');
+                var row = [
+                    '"' + date + '"',
+                    typeLabel,
+                    fluidLabel,
+                    groupLabel,
+                    h.ps,
+                    h.v || '',
+                    h.dn || '',
+                    '"' + specialCasesStr + '"',
+                    '"' + h.category + '"',
+                    h.tableNum,
+                    '"' + (h.explanation || '').replace(/"/g, '""') + '"',
+                    '"' + (h.notes || '').replace(/"/g, '""') + '"'
+                ];
+                rows.push(row.join(';'));
+            }
+
+            var csvContent = '\uFEFF' + rows.join('\n');
+            var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'historique_desp_' + new Date().toISOString().slice(0,10) + '.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Export CSV telecharge');
+        }
+
+        // =====================================================
+        // IMPORT DATA (CSV / JSON)
+        // =====================================================
+        function importData(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var content = e.target.result;
+                var imported = [];
+
+                if (file.name.endsWith('.json')) {
+                    try {
+                        var data = JSON.parse(content);
+                        if (Array.isArray(data)) {
+                            imported = data;
+                        } else if (data.history && Array.isArray(data.history)) {
+                            imported = data.history;
+                        }
+                    } catch (err) {
+                        showToast('Erreur: fichier JSON invalide');
+                        return;
+                    }
+                } else if (file.name.endsWith('.csv')) {
+                    imported = parseCSVImport(content);
+                } else {
+                    showToast('Format non supporte. Utilisez .csv ou .json');
+                    return;
+                }
+
+                if (imported.length === 0) {
+                    showToast('Aucune donnee valide trouvee');
+                    return;
+                }
+
+                // Validate and normalize entries
+                var valid = [];
+                for (var i = 0; i < imported.length; i++) {
+                    var item = imported[i];
+                    if (item.equipmentType && item.fluidType && item.fluidGroup && item.ps != null && item.category) {
+                        if (!item.id) item.id = Date.now() + i;
+                        if (!item.date) item.date = new Date().toISOString();
+                        if (!item.notes) item.notes = '';
+                        if (!item.specialCases) item.specialCases = [];
+                        valid.push(item);
+                    }
+                }
+
+                if (valid.length === 0) {
+                    showToast('Aucune entree valide dans le fichier');
+                    return;
+                }
+
+                var history = getHistory();
+                history = valid.concat(history);
+                if (history.length > 50) history = history.slice(0, 50);
+
+                try {
+                    localStorage.setItem('desp_calculator_history', JSON.stringify(history));
+                } catch (err) {
+                    showToast('Erreur lors de la sauvegarde');
+                    return;
+                }
+
+                renderHistory();
+                showToast(valid.length + ' calcul(s) importe(s)');
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function parseCSVImport(content) {
+            var lines = content.split('\n').filter(function(l) { return l.trim().length > 0; });
+            if (lines.length < 2) return [];
+
+            // Remove BOM if present
+            if (lines[0].charCodeAt(0) === 0xFEFF) lines[0] = lines[0].substring(1);
+
+            var results = [];
+            for (var i = 1; i < lines.length; i++) {
+                var cols = parseCSVLine(lines[i]);
+                if (cols.length < 9) continue;
+
+                var typeMap = { 'recipient': 'vessel', 'tuyauterie': 'piping' };
+                var fluidMap = { 'gaz': 'gas', 'liquide': 'liquid' };
+                var groupMap = { 'groupe 1': 'group1', 'groupe 2': 'group2' };
+
+                var eqType = typeMap[cols[1].toLowerCase().trim()] || cols[1].trim();
+                var flType = fluidMap[cols[2].toLowerCase().trim()] || cols[2].trim();
+                var grType = groupMap[cols[3].toLowerCase().trim()] || cols[3].trim();
+
+                results.push({
+                    id: Date.now() + i,
+                    date: cols[0] ? new Date().toISOString() : new Date().toISOString(),
+                    equipmentType: eqType,
+                    fluidType: flType,
+                    fluidGroup: grType,
+                    ps: parseFloat(cols[4]) || 0,
+                    v: cols[5] ? parseFloat(cols[5]) : null,
+                    dn: cols[6] ? parseFloat(cols[6]) : null,
+                    specialCases: cols[7] ? cols[7].split(',').map(function(s) { return s.trim(); }).filter(Boolean) : [],
+                    category: cols[8] || '',
+                    tableNum: cols[9] || '',
+                    explanation: cols[10] || '',
+                    notes: cols[11] || ''
+                });
+            }
+            return results;
+        }
+
+        function parseCSVLine(line) {
+            var result = [];
+            var current = '';
+            var inQuotes = false;
+            for (var i = 0; i < line.length; i++) {
+                var c = line[i];
+                if (c === '"') {
+                    if (inQuotes && i + 1 < line.length && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (c === ';' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += c;
+                }
+            }
+            result.push(current);
+            return result;
+        }
+
+        // =====================================================
+        // NOTES
+        // =====================================================
+        function saveNotes() {
+            if (currentHistoryId === null) return;
+            var history = getHistory();
+            var notes = document.getElementById('notesTextarea').value;
+            for (var i = 0; i < history.length; i++) {
+                if (history[i].id === currentHistoryId) {
+                    history[i].notes = notes;
+                    break;
+                }
+            }
+            try {
+                localStorage.setItem('desp_calculator_history', JSON.stringify(history));
+            } catch (e) {
+                console.warn('Could not save notes', e);
+            }
+            renderHistory();
+        }
+
+        // =====================================================
+        // SHARE BY LINK
+        // =====================================================
+        function shareByLink() {
+            if (!state.equipmentType || !state.fluidType || !state.fluidGroup || state.ps == null) {
+                showToast('Aucun calcul a partager');
+                return;
+            }
+
+            var params = new URLSearchParams();
+            params.set('eq', state.equipmentType);
+            params.set('fl', state.fluidType);
+            params.set('gr', state.fluidGroup);
+            params.set('ps', state.ps);
+            if (state.equipmentType === 'vessel' && state.v != null) {
+                params.set('v', state.v);
+            }
+            if (state.equipmentType === 'piping' && state.dn != null) {
+                params.set('dn', state.dn);
+            }
+            if (state.specialCases && state.specialCases.length > 0) {
+                params.set('sc', state.specialCases.join(','));
+            }
+
+            var url = window.location.origin + window.location.pathname + '?' + params.toString();
+            document.getElementById('shareLinkInput').value = url;
+            showToast('Lien genere');
+        }
+
+        function copyShareLink() {
+            var input = document.getElementById('shareLinkInput');
+            if (!input.value) {
+                shareByLink();
+            }
+            if (input.value) {
+                navigator.clipboard.writeText(input.value).then(function() {
+                    showToast('Lien copie dans le presse-papiers');
+                }).catch(function() {
+                    input.select();
+                    document.execCommand('copy');
+                    showToast('Lien copie');
+                });
+            }
+        }
+
+        function loadFromURL() {
+            var params = new URLSearchParams(window.location.search);
+            if (!params.has('eq') || !params.has('fl') || !params.has('gr') || !params.has('ps')) {
+                return false;
+            }
+
+            var eq = params.get('eq');
+            var fl = params.get('fl');
+            var gr = params.get('gr');
+            var ps = parseFloat(params.get('ps'));
+
+            if (!['vessel', 'piping'].includes(eq)) return false;
+            if (!['gas', 'liquid'].includes(fl)) return false;
+            if (!['group1', 'group2'].includes(gr)) return false;
+            if (isNaN(ps) || ps < 0) return false;
+
+            state.equipmentType = eq;
+            state.fluidType = fl;
+            state.fluidGroup = gr;
+            state.ps = ps;
+
+            if (eq === 'vessel') {
+                var v = parseFloat(params.get('v'));
+                if (!isNaN(v) && v > 0) state.v = v;
+                else return false;
+            } else {
+                var dn = parseFloat(params.get('dn'));
+                if (!isNaN(dn) && dn > 0) state.dn = dn;
+                else return false;
+            }
+
+            if (params.has('sc')) {
+                state.specialCases = params.get('sc').split(',').filter(Boolean);
+            }
+
+            // Set up UI
+            document.getElementById('psInput').value = state.ps;
+            document.getElementById('vInput').value = state.v || '';
+            document.getElementById('dnInput').value = state.dn || '';
+
+            if (state.equipmentType === 'vessel') {
+                document.getElementById('volumeGroup').classList.remove('hidden');
+                document.getElementById('dnGroup').classList.add('hidden');
+            } else {
+                document.getElementById('volumeGroup').classList.add('hidden');
+                document.getElementById('dnGroup').classList.remove('hidden');
+            }
+
+            // Select option cards
+            var eqCard = document.querySelector('[data-value="' + eq + '"][data-step="1"]');
+            if (eqCard) eqCard.classList.add('selected');
+            var flCard = document.querySelector('[data-value="' + fl + '"][data-step="2"]');
+            if (flCard) flCard.classList.add('selected');
+            var grCard = document.querySelector('[data-value="' + gr + '"][data-step="3"]');
+            if (grCard) grCard.classList.add('selected');
+
+            // Jump to result
+            state.currentStep = 6;
+            for (var i = 1; i <= 6; i++) {
+                document.getElementById('step' + i).classList.add('hidden');
+            }
+            document.getElementById('step6').classList.remove('hidden');
+            updateStepper();
+
+            calculateResult();
+
+            // Clean URL without reload
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            showToast('Calcul charge depuis le lien partage');
+            return true;
+        }
+
     </script>
 
 </body>
