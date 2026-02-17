@@ -1545,12 +1545,16 @@
             }
         }
 
+        function hasMeaningfulProgress(savedState) {
+            return savedState.equipmentType !== null || savedState.currentStep > 1;
+        }
+
         function loadState() {
             try {
                 const saved = localStorage.getItem('desp_calculator_state');
                 if (saved) {
                     const parsed = JSON.parse(saved);
-                    if (confirm('Reprendre le calcul précédent ?')) {
+                    if (hasMeaningfulProgress(parsed) && confirm('Reprendre le calcul précédent ?')) {
                         Object.assign(state, parsed);
                         restoreUI();
                     } else {
