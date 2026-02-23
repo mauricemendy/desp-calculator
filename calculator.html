@@ -1400,6 +1400,10 @@
                             <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                             Comparer
                         </button>
+                        <button class="btn btn-sm btn-secondary" onclick="exportHistoryToPDF()">
+                            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                            PDF
+                        </button>
                         <button class="btn btn-sm btn-secondary" onclick="exportToCSV()">
                             <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                             CSV
@@ -2135,62 +2139,272 @@
             document.getElementById('explanationText').textContent = explanation;
         }
 
-        function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
+        // =====================================================
+        // PDF HELPERS
+        // =====================================================
+        function pdfHexToRgb(hex) {
+            var r = parseInt(hex.slice(1, 3), 16);
+            var g = parseInt(hex.slice(3, 5), 16);
+            var b = parseInt(hex.slice(5, 7), 16);
+            return [r, g, b];
+        }
+
+        function pdfGetCategoryStyle(category) {
+            var styles = {
+                'Non soumis':   { bg: '#F3F4F6', border: '#9CA3AF', text: '#6B7280', label: 'NON SOUMIS' },
+                'Article 4§3':  { bg: '#E5E7EB', border: '#9CA3AF', text: '#6B7280', label: 'ARTICLE 4§3' },
+                'Catégorie I':  { bg: '#CCFBF1', border: '#0D9488', text: '#0F766E', label: 'CATÉGORIE I' },
+                'Catégorie II': { bg: '#FEF3C7', border: '#D97706', text: '#92400E', label: 'CATÉGORIE II' },
+                'Catégorie III':{ bg: '#FFEDD5', border: '#F97316', text: '#C2410C', label: 'CATÉGORIE III' },
+                'Catégorie IV': { bg: '#FEE2E2', border: '#DC2626', text: '#991B1B', label: 'CATÉGORIE IV' }
+            };
+            return styles[category] || styles['Non soumis'];
+        }
+
+        function pdfGetSpecialCaseLabel(code) {
+            var labels = {
+                'unstable_gas': 'Gaz instable',
+                'extinguisher': 'Extincteur portable',
+                'breathing': 'Bouteille équipement respiratoire',
+                'unstable_gas_piping': 'Gaz instable (tuyauterie)',
+                'high_temp': 'Fluides à température > 350°C'
+            };
+            return labels[code] || code;
+        }
+
+        function pdfDrawHeader(doc) {
+            // Teal header banner
+            doc.setFillColor(13, 148, 136);
+            doc.rect(0, 0, 210, 32, 'F');
+
+            // White title text
+            doc.setTextColor(255, 255, 255);
             doc.setFontSize(18);
-            doc.text('Résultat Classification DESP', 20, 20);
-            
+            doc.setFont('helvetica', 'bold');
+            doc.text('Classification DESP', 15, 15);
             doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text('Directive 2014/68/UE', 20, 28);
-            
-            doc.setFontSize(14);
-            doc.setTextColor(0);
-            doc.text(`Catégorie: ${state.finalCategory || 'N/A'}`, 20, 45);
-            
-            doc.setFontSize(11);
-            let y = 60;
-            
-            doc.text(`Type d'équipement: ${state.equipmentType === 'vessel' ? 'Récipient' : 'Tuyauterie'}`, 20, y);
-            y += 8;
-            doc.text(`Type de fluide: ${state.fluidType === 'gas' ? 'Gaz' : 'Liquide'}`, 20, y);
-            y += 8;
-            doc.text(`Groupe de fluide: ${state.fluidGroup === 'group1' ? 'Groupe 1 (dangereux)' : 'Groupe 2 (non dangereux)'}`, 20, y);
-            y += 8;
-            doc.text(`Pression (PS): ${state.ps} bar`, 20, y);
-            y += 8;
-            
-            if (state.equipmentType === 'vessel') {
-                doc.text(`Volume (V): ${state.v} litres`, 20, y);
-                y += 8;
-                doc.text(`Calcul: PS × V = ${(state.ps * state.v).toFixed(2)} bar.L`, 20, y);
-            } else {
-                doc.text(`Dimension Nominale (DN): DN ${state.dn}`, 20, y);
-                y += 8;
-                doc.text(`Calcul: PS × DN = ${(state.ps * state.dn).toFixed(2)}`, 20, y);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Directive 2014/68/UE — Équipements sous pression', 15, 23);
+
+            // Date in header
+            var dateStr = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+            doc.setFontSize(9);
+            doc.text(dateStr, 195, 15, { align: 'right' });
+
+            // Reset text color
+            doc.setTextColor(0, 0, 0);
+            return 42;
+        }
+
+        function pdfDrawFooter(doc, pageNum, totalPages) {
+            var pageH = doc.internal.pageSize.getHeight();
+            // Footer separator line
+            doc.setDrawColor(209, 213, 219);
+            doc.setLineWidth(0.3);
+            doc.line(15, pageH - 15, 195, pageH - 15);
+
+            doc.setFontSize(7.5);
+            doc.setTextColor(156, 163, 175);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Calculateur DESP 2014/68/UE — Document généré automatiquement', 15, pageH - 10);
+            if (totalPages > 0) {
+                doc.text('Page ' + pageNum + ' / ' + totalPages, 195, pageH - 10, { align: 'right' });
             }
+            doc.setTextColor(0, 0, 0);
+        }
+
+        function pdfDrawCategoryBadge(doc, category, x, y, w) {
+            var style = pdfGetCategoryStyle(category);
+            var bgRgb = pdfHexToRgb(style.bg);
+            var borderRgb = pdfHexToRgb(style.border);
+            var textRgb = pdfHexToRgb(style.text);
+
+            // Badge background
+            doc.setFillColor(bgRgb[0], bgRgb[1], bgRgb[2]);
+            doc.setDrawColor(borderRgb[0], borderRgb[1], borderRgb[2]);
+            doc.setLineWidth(0.8);
+            doc.roundedRect(x, y, w, 18, 3, 3, 'FD');
+
+            // Badge text
+            doc.setTextColor(textRgb[0], textRgb[1], textRgb[2]);
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text(style.label, x + w / 2, y + 12, { align: 'center' });
+
+            doc.setTextColor(0, 0, 0);
+            return y + 25;
+        }
+
+        function pdfDrawParamTable(doc, rows, startY) {
+            var x = 15;
+            var w = 180;
+            var rowH = 9;
+            var y = startY;
+
+            for (var i = 0; i < rows.length; i++) {
+                // Alternate row background
+                if (i % 2 === 0) {
+                    doc.setFillColor(249, 250, 251);
+                    doc.rect(x, y - 1, w, rowH, 'F');
+                }
+                // Label
+                doc.setFontSize(9.5);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(107, 114, 128);
+                doc.text(rows[i].label, x + 4, y + 5);
+                // Value
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(17, 24, 39);
+                doc.text(rows[i].value, x + w - 4, y + 5, { align: 'right' });
+                y += rowH;
+            }
+
+            // Table border
+            doc.setDrawColor(229, 231, 235);
+            doc.setLineWidth(0.3);
+            doc.roundedRect(x, startY - 1, w, rows.length * rowH, 2, 2, 'S');
+
+            doc.setTextColor(0, 0, 0);
+            return y + 4;
+        }
+
+        function pdfDrawInfoBox(doc, title, text, y) {
+            var x = 15;
+            var w = 180;
+
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(55, 65, 81);
+            doc.text(title, x + 4, y + 5);
             y += 8;
-            
-            doc.text(`Tableau appliqué: ${document.getElementById('detailTable').textContent}`, 20, y);
-            y += 15;
-            
-            doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text('Explication:', 20, y);
-            y += 6;
-            
-            const explanation = document.getElementById('explanationText').textContent;
-            const splitExplanation = doc.splitTextToSize(explanation, 170);
-            doc.text(splitExplanation, 20, y);
-            y += (splitExplanation.length * 5) + 10;
-            
-            doc.setFontSize(8);
-            doc.setTextColor(150);
-            doc.text(`Document généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, 20, 280);
-            
-            doc.save('classification_desp.pdf');
+
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(75, 85, 99);
+            var lines = doc.splitTextToSize(text, w - 12);
+            var boxH = lines.length * 4.5 + 8;
+
+            // Box background
+            doc.setFillColor(240, 253, 250);
+            doc.setDrawColor(13, 148, 136);
+            doc.setLineWidth(0.4);
+            doc.roundedRect(x, y - 4, w, boxH, 2, 2, 'FD');
+
+            doc.setTextColor(15, 118, 110);
+            doc.text(lines, x + 6, y + 2);
+
+            doc.setTextColor(0, 0, 0);
+            return y + boxH + 4;
+        }
+
+        function pdfDrawSectionTitle(doc, text, y) {
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(17, 24, 39);
+            doc.text(text, 15, y);
+            // Underline accent
+            doc.setDrawColor(13, 148, 136);
+            doc.setLineWidth(0.6);
+            doc.line(15, y + 1.5, 15 + doc.getTextWidth(text), y + 1.5);
+            doc.setTextColor(0, 0, 0);
+            return y + 8;
+        }
+
+        // =====================================================
+        // SINGLE PDF EXPORT
+        // =====================================================
+        function exportToPDF() {
+            var jsPDFLib = window.jspdf;
+            var doc = new jsPDFLib.jsPDF();
+
+            // --- Header ---
+            var y = pdfDrawHeader(doc);
+
+            // --- Category Badge ---
+            var category = state.finalCategory || 'N/A';
+            y = pdfDrawCategoryBadge(doc, category, 30, y, 150);
+
+            // --- Parameters Section ---
+            y = pdfDrawSectionTitle(doc, 'Paramètres de l\'équipement', y);
+
+            var rows = [
+                { label: 'Type d\'équipement', value: state.equipmentType === 'vessel' ? 'Récipient' : 'Tuyauterie' },
+                { label: 'Type de fluide', value: state.fluidType === 'gas' ? 'Gaz' : 'Liquide' },
+                { label: 'Groupe de fluide', value: state.fluidGroup === 'group1' ? 'Groupe 1 (dangereux)' : 'Groupe 2 (non dangereux)' },
+                { label: 'Pression (PS)', value: state.ps + ' bar' }
+            ];
+
+            if (state.equipmentType === 'vessel') {
+                rows.push({ label: 'Volume (V)', value: state.v + ' litres' });
+                rows.push({ label: 'Produit PS × V', value: (state.ps * state.v).toFixed(2) + ' bar.L' });
+            } else {
+                rows.push({ label: 'Dimension Nominale (DN)', value: 'DN ' + state.dn });
+                rows.push({ label: 'Produit PS × DN', value: (state.ps * state.dn).toFixed(2) });
+            }
+
+            rows.push({ label: 'Tableau appliqué', value: document.getElementById('detailTable').textContent });
+
+            // Special cases
+            if (state.specialCases && state.specialCases.length > 0) {
+                var scLabels = state.specialCases.map(function(sc) { return pdfGetSpecialCaseLabel(sc); });
+                rows.push({ label: 'Cas particuliers', value: scLabels.join(', ') });
+            }
+
+            y = pdfDrawParamTable(doc, rows, y);
+
+            // --- Explanation ---
+            y += 2;
+            var explanation = document.getElementById('explanationText').textContent;
+            if (explanation && explanation !== '-') {
+                y = pdfDrawInfoBox(doc, 'Explication de la classification', explanation, y);
+            }
+
+            // --- Zone Chart ---
+            var chartCanvas = document.getElementById('zoneChart');
+            if (chartCanvas && !document.getElementById('chartSection').classList.contains('hidden')) {
+                if (y + 80 > 265) {
+                    doc.addPage();
+                    y = pdfDrawHeader(doc);
+                }
+                y = pdfDrawSectionTitle(doc, 'Diagramme de zones réglementaires', y);
+                try {
+                    var chartImg = chartCanvas.toDataURL('image/png');
+                    var chartW = 160;
+                    var chartH = chartW * (chartCanvas.height / chartCanvas.width);
+                    if (chartH > 100) { chartH = 100; chartW = chartH * (chartCanvas.width / chartCanvas.height); }
+                    var chartX = (210 - chartW) / 2;
+                    doc.addImage(chartImg, 'PNG', chartX, y, chartW, chartH);
+                    y += chartH + 8;
+                } catch (e) {
+                    // Canvas tainted or unavailable, skip silently
+                }
+            }
+
+            // --- Notes ---
+            var notesEl = document.getElementById('notesTextarea');
+            if (notesEl && notesEl.value.trim()) {
+                if (y + 20 > 265) {
+                    doc.addPage();
+                    y = pdfDrawHeader(doc);
+                }
+                y = pdfDrawSectionTitle(doc, 'Notes', y);
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'italic');
+                doc.setTextColor(75, 85, 99);
+                var noteLines = doc.splitTextToSize(notesEl.value.trim(), 170);
+                doc.text(noteLines, 19, y);
+                y += noteLines.length * 4.5 + 4;
+                doc.setTextColor(0, 0, 0);
+            }
+
+            // --- Footer on all pages ---
+            var totalPages = doc.internal.getNumberOfPages();
+            for (var p = 1; p <= totalPages; p++) {
+                doc.setPage(p);
+                pdfDrawFooter(doc, p, totalPages);
+            }
+
+            doc.save('classification_desp_' + new Date().toISOString().slice(0, 10) + '.pdf');
         }
 
         function resetTool() {
@@ -3198,6 +3412,246 @@
             a.click();
             URL.revokeObjectURL(url);
             showToast('Export CSV telecharge');
+        }
+
+        // =====================================================
+        // BATCH PDF EXPORT (History)
+        // =====================================================
+        function exportHistoryToPDF() {
+            var history = getHistory();
+            if (history.length === 0) {
+                showToast('Aucun calcul à exporter');
+                return;
+            }
+
+            var jsPDFLib = window.jspdf;
+            var doc = new jsPDFLib.jsPDF();
+
+            // ---- COVER PAGE ----
+            // Full teal background
+            doc.setFillColor(13, 148, 136);
+            doc.rect(0, 0, 210, 297, 'F');
+
+            // Decorative circles
+            doc.setFillColor(15, 118, 110);
+            doc.circle(170, 40, 50, 'F');
+            doc.setFillColor(20, 184, 166);
+            doc.circle(40, 250, 35, 'F');
+
+            // Title block
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(32);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Rapport de', 30, 100);
+            doc.text('Classification DESP', 30, 115);
+
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Directive 2014/68/UE — Équipements sous pression', 30, 130);
+
+            // White separator line
+            doc.setDrawColor(255, 255, 255);
+            doc.setLineWidth(0.5);
+            doc.line(30, 140, 100, 140);
+
+            // Stats
+            doc.setFontSize(11);
+            doc.text(history.length + ' classification' + (history.length > 1 ? 's' : ''), 30, 155);
+            doc.text('Généré le ' + new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }), 30, 163);
+
+            // Summary stats
+            var catCount = {};
+            for (var s = 0; s < history.length; s++) {
+                var cat = history[s].category || 'Inconnu';
+                catCount[cat] = (catCount[cat] || 0) + 1;
+            }
+
+            var statY = 185;
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Résumé', 30, statY);
+            statY += 10;
+
+            var catKeys = Object.keys(catCount);
+            for (var ck = 0; ck < catKeys.length; ck++) {
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                // Small colored dot
+                var dotStyle = pdfGetCategoryStyle(catKeys[ck]);
+                var dotRgb = pdfHexToRgb(dotStyle.border);
+                doc.setFillColor(dotRgb[0], dotRgb[1], dotRgb[2]);
+                doc.circle(35, statY - 1.2, 2, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.text(catKeys[ck] + '  —  ' + catCount[catKeys[ck]], 40, statY);
+                statY += 7;
+            }
+
+            doc.setTextColor(0, 0, 0);
+
+            // ---- SUMMARY TABLE PAGE ----
+            doc.addPage();
+            var y = pdfDrawHeader(doc);
+            y = pdfDrawSectionTitle(doc, 'Tableau récapitulatif', y);
+
+            // Table header
+            var colX = [15, 50, 80, 105, 130, 155];
+            var colW = [35, 30, 25, 25, 25, 40];
+            var headers = ['Équipement', 'Fluide', 'PS (bar)', 'V / DN', 'Produit', 'Catégorie'];
+
+            doc.setFillColor(13, 148, 136);
+            doc.rect(15, y - 1, 180, 8, 'F');
+            doc.setFontSize(7.5);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(255, 255, 255);
+            for (var hi = 0; hi < headers.length; hi++) {
+                doc.text(headers[hi], colX[hi] + 2, y + 4.5);
+            }
+            doc.setTextColor(0, 0, 0);
+            y += 9;
+
+            for (var si = 0; si < history.length; si++) {
+                var item = history[si];
+                if (y > 270) {
+                    doc.addPage();
+                    y = pdfDrawHeader(doc);
+                    // Re-draw table header
+                    doc.setFillColor(13, 148, 136);
+                    doc.rect(15, y - 1, 180, 8, 'F');
+                    doc.setFontSize(7.5);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(255, 255, 255);
+                    for (var rhi = 0; rhi < headers.length; rhi++) {
+                        doc.text(headers[rhi], colX[rhi] + 2, y + 4.5);
+                    }
+                    doc.setTextColor(0, 0, 0);
+                    y += 9;
+                }
+
+                // Alternate row bg
+                if (si % 2 === 0) {
+                    doc.setFillColor(249, 250, 251);
+                    doc.rect(15, y - 1, 180, 7.5, 'F');
+                }
+
+                doc.setFontSize(7);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(55, 65, 81);
+
+                var typeL = item.equipmentType === 'vessel' ? 'Récipient' : 'Tuyauterie';
+                var fluidL = (item.fluidType === 'gas' ? 'Gaz' : 'Liquide') + ' / ' + (item.fluidGroup === 'group1' ? 'Gr.1' : 'Gr.2');
+                var paramL = item.equipmentType === 'vessel' ? (item.v + ' L') : ('DN ' + item.dn);
+                var produit = item.equipmentType === 'vessel'
+                    ? (item.ps * item.v).toFixed(1)
+                    : (item.ps * item.dn).toFixed(1);
+
+                doc.text(typeL, colX[0] + 2, y + 4);
+                doc.text(fluidL, colX[1] + 2, y + 4);
+                doc.text(String(item.ps), colX[2] + 2, y + 4);
+                doc.text(paramL, colX[3] + 2, y + 4);
+                doc.text(produit, colX[4] + 2, y + 4);
+
+                // Category badge in table
+                var catS = pdfGetCategoryStyle(item.category);
+                var catBgRgb = pdfHexToRgb(catS.bg);
+                var catTxtRgb = pdfHexToRgb(catS.text);
+                var catBrdRgb = pdfHexToRgb(catS.border);
+                doc.setFillColor(catBgRgb[0], catBgRgb[1], catBgRgb[2]);
+                doc.setDrawColor(catBrdRgb[0], catBrdRgb[1], catBrdRgb[2]);
+                doc.setLineWidth(0.3);
+                doc.roundedRect(colX[5] + 1, y - 0.5, 38, 6.5, 1.5, 1.5, 'FD');
+                doc.setFontSize(6.5);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(catTxtRgb[0], catTxtRgb[1], catTxtRgb[2]);
+                doc.text(item.category, colX[5] + 20, y + 4, { align: 'center' });
+
+                doc.setTextColor(0, 0, 0);
+                y += 7.5;
+            }
+
+            // Table border
+            doc.setDrawColor(229, 231, 235);
+            doc.setLineWidth(0.3);
+
+            // ---- DETAIL PAGES ----
+            for (var di = 0; di < history.length; di++) {
+                var entry = history[di];
+                doc.addPage();
+                y = pdfDrawHeader(doc);
+
+                // Entry number
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(156, 163, 175);
+                doc.text('Classification ' + (di + 1) + ' / ' + history.length, 195, y - 5, { align: 'right' });
+
+                var entryDate = new Date(entry.date);
+                doc.text(entryDate.toLocaleDateString('fr-FR') + ' à ' + entryDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }), 15, y - 5);
+                doc.setTextColor(0, 0, 0);
+
+                // Category badge
+                y = pdfDrawCategoryBadge(doc, entry.category, 30, y, 150);
+
+                // Parameters table
+                y = pdfDrawSectionTitle(doc, 'Paramètres', y);
+                var entryRows = [
+                    { label: 'Type d\'équipement', value: entry.equipmentType === 'vessel' ? 'Récipient' : 'Tuyauterie' },
+                    { label: 'Type de fluide', value: entry.fluidType === 'gas' ? 'Gaz' : 'Liquide' },
+                    { label: 'Groupe de fluide', value: entry.fluidGroup === 'group1' ? 'Groupe 1 (dangereux)' : 'Groupe 2 (non dangereux)' },
+                    { label: 'Pression (PS)', value: entry.ps + ' bar' }
+                ];
+
+                if (entry.equipmentType === 'vessel') {
+                    entryRows.push({ label: 'Volume (V)', value: entry.v + ' litres' });
+                    entryRows.push({ label: 'Produit PS × V', value: (entry.ps * entry.v).toFixed(2) + ' bar.L' });
+                } else {
+                    entryRows.push({ label: 'Dimension Nominale (DN)', value: 'DN ' + entry.dn });
+                    entryRows.push({ label: 'Produit PS × DN', value: (entry.ps * entry.dn).toFixed(2) });
+                }
+
+                entryRows.push({ label: 'Tableau appliqué', value: entry.tableNum || '-' });
+
+                if (entry.specialCases && entry.specialCases.length > 0) {
+                    var scLabels = entry.specialCases.map(function(sc) { return pdfGetSpecialCaseLabel(sc); });
+                    entryRows.push({ label: 'Cas particuliers', value: scLabels.join(', ') });
+                }
+
+                y = pdfDrawParamTable(doc, entryRows, y);
+
+                // Explanation
+                if (entry.explanation) {
+                    y += 2;
+                    y = pdfDrawInfoBox(doc, 'Explication', entry.explanation, y);
+                }
+
+                // Notes
+                if (entry.notes && entry.notes.trim()) {
+                    y = pdfDrawSectionTitle(doc, 'Notes', y);
+                    doc.setFontSize(9);
+                    doc.setFont('helvetica', 'italic');
+                    doc.setTextColor(75, 85, 99);
+                    var noteLines = doc.splitTextToSize(entry.notes.trim(), 170);
+                    doc.text(noteLines, 19, y);
+                    doc.setTextColor(0, 0, 0);
+                }
+            }
+
+            // Footers on all pages
+            var totalPages = doc.internal.getNumberOfPages();
+            for (var p = 1; p <= totalPages; p++) {
+                doc.setPage(p);
+                if (p === 1) {
+                    // Cover page - minimal footer
+                    doc.setFontSize(7.5);
+                    doc.setTextColor(200, 230, 225);
+                    doc.text('Calculateur DESP 2014/68/UE', 30, 285);
+                    doc.setTextColor(0, 0, 0);
+                } else {
+                    pdfDrawFooter(doc, p - 1, totalPages - 1);
+                }
+            }
+
+            doc.save('rapport_desp_' + new Date().toISOString().slice(0, 10) + '.pdf');
+            showToast('Rapport PDF exporté');
         }
 
         // =====================================================
