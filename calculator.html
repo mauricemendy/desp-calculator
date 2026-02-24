@@ -2155,6 +2155,22 @@
             };
             const catColor = catPdfColors[state.finalCategory] || catPdfColors['Catégorie I'];
 
+            // ── Helper: sanitize text for jsPDF (WinAnsi encoding) ──
+            function pdfText(str) {
+                return str
+                    .replace(/\u2264/g, '<=')
+                    .replace(/\u2265/g, '>=')
+                    .replace(/\u2192/g, '->')
+                    .replace(/\u2190/g, '<-')
+                    .replace(/\u2014/g, '-')
+                    .replace(/\u2013/g, '-')
+                    .replace(/\u2019/g, "'")
+                    .replace(/\u2018/g, "'")
+                    .replace(/\u201c/g, '"')
+                    .replace(/\u201d/g, '"')
+                    .replace(/\u00d7/g, 'x');
+            }
+
             // ── Helper: draw rounded rect ──
             function roundedRect(x, y, w, h, r, fillColor, strokeColor) {
                 if (fillColor) { doc.setFillColor(...fillColor); }
@@ -2167,7 +2183,7 @@
                 const pageNum = doc.internal.getNumberOfPages();
                 doc.setFontSize(7);
                 doc.setTextColor(160, 160, 160);
-                doc.text(`Classification DESP — Directive 2014/68/UE`, margin, pageH - 8);
+                doc.text(pdfText(`Classification DESP — Directive 2014/68/UE`), margin, pageH - 8);
                 doc.text(`Page ${pageNum}`, pageW - margin, pageH - 8, { align: 'right' });
                 doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, pageW / 2, pageH - 8, { align: 'center' });
                 // Thin line above footer
@@ -2197,7 +2213,7 @@
 
             doc.setFontSize(9);
             doc.setTextColor(180, 190, 210);
-            doc.text('Directive 2014/68/UE — Équipements sous pression', margin, 24);
+            doc.text(pdfText('Directive 2014/68/UE — Équipements sous pression'), margin, 24);
             doc.text(`Rapport du ${new Date().toLocaleDateString('fr-FR')}`, margin, 31);
 
             // ===========================
@@ -2288,7 +2304,7 @@
                 // Light blue info box
                 doc.setFontSize(8.5);
                 doc.setTextColor(30, 58, 138);
-                const splitExp = doc.splitTextToSize(explanation, contentW - 12);
+                const splitExp = doc.splitTextToSize(pdfText(explanation), contentW - 12);
                 const expBoxH = splitExp.length * 4.5 + 8;
                 roundedRect(margin, y, contentW, expBoxH, 2, [239, 246, 255], [147, 197, 253]);
                 doc.text(splitExp, margin + 6, y + 6);
@@ -2329,7 +2345,7 @@
                     if (chartNote && !chartNote.classList.contains('hidden')) {
                         doc.setFontSize(7.5);
                         doc.setTextColor(180, 83, 9);
-                        const noteText = chartNote.textContent;
+                        const noteText = pdfText(chartNote.textContent);
                         const splitNote = doc.splitTextToSize(noteText, contentW - 8);
                         roundedRect(margin, y, contentW, splitNote.length * 3.5 + 6, 2, [255, 251, 235], [253, 186, 116]);
                         doc.text(splitNote, margin + 4, y + 4.5);
@@ -2376,7 +2392,7 @@
                         warning:  { bg: [255, 251, 235], border: [253, 186, 116], icon: [217, 119, 6],   text: [146, 64, 14] }
                     };
 
-                    const nodeIcons = { info: 'i', skip: '✗', decisive: '✓', result: '★', warning: '!' };
+                    const nodeIcons = { info: 'i', skip: 'x', decisive: 'O', result: '*', warning: '!' };
                     const baseNodeH = 9;
                     const iconColW = 8;
 
@@ -2385,6 +2401,10 @@
                         const nc = nodeColors[node.type] || nodeColors.info;
                         const isDecisive = node.type === 'decisive' || node.type === 'result';
 
+                        // Sanitize text for jsPDF WinAnsi encoding
+                        const safeLabel = pdfText(node.label);
+                        const safeValue = pdfText(node.value);
+
                         const textStartX = margin + iconColW + 3;
                         const textAreaW = contentW - iconColW - 7;
 
@@ -2392,12 +2412,12 @@
                         doc.setFontSize(8);
                         if (isDecisive) doc.setFont(undefined, 'bold');
                         else doc.setFont(undefined, 'normal');
-                        const labelW = doc.getTextWidth(node.label);
+                        const labelW = doc.getTextWidth(safeLabel);
 
                         // Measure value width at its font size (7.5)
                         doc.setFontSize(7.5);
                         doc.setFont(undefined, 'normal');
-                        const valueW = doc.getTextWidth(node.value);
+                        const valueW = doc.getTextWidth(safeValue);
 
                         // Determine layout: same line or second line
                         const gapBetween = 6;
@@ -2405,9 +2425,9 @@
                         const valueSameLine = availableForValue >= valueW;
 
                         let nodeH = baseNodeH;
-                        let valueLines = [node.value];
+                        let valueLines = [safeValue];
                         if (!valueSameLine) {
-                            valueLines = doc.splitTextToSize(node.value, textAreaW);
+                            valueLines = doc.splitTextToSize(safeValue, textAreaW);
                             nodeH = 8 + valueLines.length * 3.5;
                             if (nodeH < baseNodeH) nodeH = baseNodeH;
                         }
@@ -2429,21 +2449,21 @@
                         doc.circle(margin + iconColW / 2, y + nodeH / 2, 2.5, 'F');
                         doc.setFontSize(6);
                         doc.setTextColor(255, 255, 255);
-                        doc.text(nodeIcons[node.type] || '•', margin + iconColW / 2, y + nodeH / 2 + 1, { align: 'center' });
+                        doc.text(nodeIcons[node.type] || '-', margin + iconColW / 2, y + nodeH / 2 + 1, { align: 'center' });
 
                         // Label
                         doc.setFontSize(8);
                         doc.setTextColor(...nc.text);
                         if (isDecisive) doc.setFont(undefined, 'bold');
                         else doc.setFont(undefined, 'normal');
-                        doc.text(node.label, textStartX, y + 4);
+                        doc.text(safeLabel, textStartX, y + 4);
 
                         // Value
                         doc.setFontSize(7.5);
                         doc.setFont(undefined, 'normal');
                         doc.setTextColor(...nc.text);
                         if (valueSameLine) {
-                            doc.text(node.value, margin + contentW - 4, y + 4, { align: 'right' });
+                            doc.text(safeValue, margin + contentW - 4, y + 4, { align: 'right' });
                         } else {
                             doc.text(valueLines, textStartX, y + 7.5);
                         }
@@ -2468,7 +2488,7 @@
                     const productStr = `${proxData.productLabel} = ${proxData.product.toFixed(2)} ${proxData.productUnit}`;
                     doc.setFontSize(9);
                     doc.setTextColor(17, 24, 39);
-                    doc.text(`Valeur actuelle : ${productStr}`, margin + 4, y + 4);
+                    doc.text(pdfText(`Valeur actuelle : ${productStr}`), margin + 4, y + 4);
                     y += 8;
 
                     // Progress bar
@@ -2500,19 +2520,19 @@
                     doc.setFontSize(7);
                     doc.setTextColor(130, 130, 130);
                     if (proxData.lowerThreshold) {
-                        doc.text(`${proxData.lowerThreshold.below} (${proxData.lowerThreshold.value})`, barX, y + 3);
+                        doc.text(pdfText(`${proxData.lowerThreshold.below} (${proxData.lowerThreshold.value})`), barX, y + 3);
                     } else {
                         doc.text('0', barX, y + 3);
                     }
 
                     doc.setTextColor(...catColor.text);
                     doc.setFontSize(7.5);
-                    doc.text(proxData.category, barX + barW / 2, y + 3, { align: 'center' });
+                    doc.text(pdfText(proxData.category), barX + barW / 2, y + 3, { align: 'center' });
 
                     doc.setTextColor(130, 130, 130);
                     doc.setFontSize(7);
                     if (proxData.upperThreshold) {
-                        doc.text(`${proxData.upperThreshold.above} (${proxData.upperThreshold.value})`, barX + barW, y + 3, { align: 'right' });
+                        doc.text(pdfText(`${proxData.upperThreshold.above} (${proxData.upperThreshold.value})`), barX + barW, y + 3, { align: 'right' });
                     }
                     y += 8;
 
@@ -2530,7 +2550,7 @@
                         doc.text(`${proxData.lowerDistance.toFixed(2)} ${proxData.productUnit}`, margin + 4, y + 11);
                         doc.setFontSize(6.5);
                         doc.setTextColor(130, 130, 130);
-                        doc.text(`Au-dessus du seuil ${proxData.lowerThreshold.value}`, margin + 4, y + 15.5);
+                        doc.text(pdfText(`Au-dessus du seuil ${proxData.lowerThreshold.value}`), margin + 4, y + 15.5);
                     }
 
                     if (proxData.upperDistance !== null) {
@@ -2544,7 +2564,7 @@
                         doc.text(`${proxData.upperDistance.toFixed(2)} ${proxData.productUnit}`, cx + 4, y + 11);
                         doc.setFontSize(6.5);
                         doc.setTextColor(130, 130, 130);
-                        doc.text(`Avant le seuil ${proxData.upperThreshold.value}`, cx + 4, y + 15.5);
+                        doc.text(pdfText(`Avant le seuil ${proxData.upperThreshold.value}`), cx + 4, y + 15.5);
                     }
 
                     y += cardH + 8;
@@ -2575,7 +2595,7 @@
                     roundedRect(margin, y, contentW, 7, 1.5, [255, 251, 235], [253, 186, 116]);
                     doc.setFontSize(8);
                     doc.setTextColor(146, 64, 14);
-                    doc.text(`⚠ ${label}`, margin + 4, y + 5);
+                    doc.text(pdfText(`/!\\ ${label}`), margin + 4, y + 5);
                     y += 9;
                 }
                 y += 4;
