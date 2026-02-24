@@ -2301,19 +2301,21 @@
             const canvas = document.getElementById('zoneChart');
             const chartSection = document.getElementById('chartSection');
             if (canvas && chartSection && !chartSection.classList.contains('hidden')) {
-                checkPage(14);
-                doc.setFontSize(11);
-                doc.setTextColor(17, 24, 39);
-                doc.text('Diagramme des zones réglementaires', margin, y);
-                y += 4;
-
                 try {
                     const imgData = canvas.toDataURL('image/png', 1.0);
                     const imgW = contentW;
                     const imgH = (canvas.height / canvas.width) * imgW;
-                    const finalImgH = Math.min(imgH, 90);
+                    // Cap to max usable height on a single page (leave room for title + footer)
+                    const maxImgH = pageH - margin * 2 - 20;
+                    const finalImgH = Math.min(imgH, maxImgH);
 
-                    checkPage(finalImgH + 10);
+                    // Check space for title + image together to avoid orphaned title
+                    checkPage(finalImgH + 14);
+
+                    doc.setFontSize(11);
+                    doc.setTextColor(17, 24, 39);
+                    doc.text('Diagramme des zones réglementaires', margin, y);
+                    y += 4;
 
                     // Light border around image
                     doc.setDrawColor(220, 220, 220);
