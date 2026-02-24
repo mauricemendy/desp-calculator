@@ -2377,14 +2377,42 @@
                     };
 
                     const nodeIcons = { info: 'i', skip: '✗', decisive: '✓', result: '★', warning: '!' };
-                    const treeNodeH = 9;
+                    const baseNodeH = 9;
                     const iconColW = 8;
 
                     for (let i = 0; i < treeNodes.length; i++) {
                         const node = treeNodes[i];
                         const nc = nodeColors[node.type] || nodeColors.info;
+                        const isDecisive = node.type === 'decisive' || node.type === 'result';
 
-                        checkPage(treeNodeH + 4);
+                        const textStartX = margin + iconColW + 3;
+                        const textAreaW = contentW - iconColW - 7;
+
+                        // Measure label width at correct font size (8)
+                        doc.setFontSize(8);
+                        if (isDecisive) doc.setFont(undefined, 'bold');
+                        else doc.setFont(undefined, 'normal');
+                        const labelW = doc.getTextWidth(node.label);
+
+                        // Measure value width at its font size (7.5)
+                        doc.setFontSize(7.5);
+                        doc.setFont(undefined, 'normal');
+                        const valueW = doc.getTextWidth(node.value);
+
+                        // Determine layout: same line or second line
+                        const gapBetween = 6;
+                        const availableForValue = textAreaW - labelW - gapBetween;
+                        const valueSameLine = availableForValue >= valueW;
+
+                        let nodeH = baseNodeH;
+                        let valueLines = [node.value];
+                        if (!valueSameLine) {
+                            valueLines = doc.splitTextToSize(node.value, textAreaW);
+                            nodeH = 8 + valueLines.length * 3.5;
+                            if (nodeH < baseNodeH) nodeH = baseNodeH;
+                        }
+
+                        checkPage(nodeH + 4);
 
                         // Connector line
                         if (i > 0) {
@@ -2393,38 +2421,34 @@
                             doc.line(margin + iconColW / 2, y - 2, margin + iconColW / 2, y);
                         }
 
-                        // Node background
-                        roundedRect(margin, y, contentW, treeNodeH, 1.5, nc.bg, nc.border);
+                        // Node background with dynamic height
+                        roundedRect(margin, y, contentW, nodeH, 1.5, nc.bg, nc.border);
 
                         // Icon circle
                         doc.setFillColor(...nc.icon);
-                        doc.circle(margin + iconColW / 2, y + treeNodeH / 2, 2.5, 'F');
+                        doc.circle(margin + iconColW / 2, y + nodeH / 2, 2.5, 'F');
                         doc.setFontSize(6);
                         doc.setTextColor(255, 255, 255);
-                        doc.text(nodeIcons[node.type] || '•', margin + iconColW / 2, y + treeNodeH / 2 + 1, { align: 'center' });
+                        doc.text(nodeIcons[node.type] || '•', margin + iconColW / 2, y + nodeH / 2 + 1, { align: 'center' });
 
                         // Label
                         doc.setFontSize(8);
                         doc.setTextColor(...nc.text);
-                        const isDecisive = node.type === 'decisive' || node.type === 'result';
-                        if (isDecisive) {
-                            doc.setFont(undefined, 'bold');
-                        }
-                        doc.text(node.label, margin + iconColW + 3, y + 4);
+                        if (isDecisive) doc.setFont(undefined, 'bold');
+                        else doc.setFont(undefined, 'normal');
+                        doc.text(node.label, textStartX, y + 4);
 
-                        // Value — right portion
+                        // Value
                         doc.setFontSize(7.5);
                         doc.setFont(undefined, 'normal');
                         doc.setTextColor(...nc.text);
-                        const maxValueW = contentW - iconColW - 6 - doc.getTextWidth(node.label) - 8;
-                        if (maxValueW > 20) {
-                            doc.text(node.value, pageW - margin - 4, y + 4, { align: 'right' });
+                        if (valueSameLine) {
+                            doc.text(node.value, margin + contentW - 4, y + 4, { align: 'right' });
                         } else {
-                            // Value on second line
-                            doc.text(node.value, margin + iconColW + 3, y + 7.5);
+                            doc.text(valueLines, textStartX, y + 7.5);
                         }
 
-                        y += treeNodeH + 2;
+                        y += nodeH + 2;
                     }
                     y += 6;
                 }
