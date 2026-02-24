@@ -2138,58 +2138,488 @@
         function exportToPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            
-            doc.setFontSize(18);
-            doc.text('Résultat Classification DESP', 20, 20);
-            
-            doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text('Directive 2014/68/UE', 20, 28);
-            
-            doc.setFontSize(14);
-            doc.setTextColor(0);
-            doc.text(`Catégorie: ${state.finalCategory || 'N/A'}`, 20, 45);
-            
-            doc.setFontSize(11);
-            let y = 60;
-            
-            doc.text(`Type d'équipement: ${state.equipmentType === 'vessel' ? 'Récipient' : 'Tuyauterie'}`, 20, y);
-            y += 8;
-            doc.text(`Type de fluide: ${state.fluidType === 'gas' ? 'Gaz' : 'Liquide'}`, 20, y);
-            y += 8;
-            doc.text(`Groupe de fluide: ${state.fluidGroup === 'group1' ? 'Groupe 1 (dangereux)' : 'Groupe 2 (non dangereux)'}`, 20, y);
-            y += 8;
-            doc.text(`Pression (PS): ${state.ps} bar`, 20, y);
-            y += 8;
-            
-            if (state.equipmentType === 'vessel') {
-                doc.text(`Volume (V): ${state.v} litres`, 20, y);
-                y += 8;
-                doc.text(`Calcul: PS × V = ${(state.ps * state.v).toFixed(2)} bar.L`, 20, y);
-            } else {
-                doc.text(`Dimension Nominale (DN): DN ${state.dn}`, 20, y);
-                y += 8;
-                doc.text(`Calcul: PS × DN = ${(state.ps * state.dn).toFixed(2)}`, 20, y);
+            const pageW = doc.internal.pageSize.getWidth();
+            const pageH = doc.internal.pageSize.getHeight();
+            const margin = 15;
+            const contentW = pageW - margin * 2;
+            let y = 0;
+
+            // ── Color palette for categories ──
+            const catPdfColors = {
+                'Non soumis':   { bg: [243,244,246], border: [156,163,175], text: [107,114,128] },
+                'Article 4§3':  { bg: [229,231,235], border: [156,163,175], text: [107,114,128] },
+                'Catégorie I':  { bg: [204,251,241], border: [13,148,136],  text: [15,118,110]  },
+                'Catégorie II': { bg: [254,243,199], border: [217,119,6],   text: [146,64,14]   },
+                'Catégorie III':{ bg: [255,237,213], border: [249,115,22],  text: [194,65,12]   },
+                'Catégorie IV': { bg: [254,226,226], border: [220,38,38],   text: [153,27,27]   }
+            };
+            const catColor = catPdfColors[state.finalCategory] || catPdfColors['Catégorie I'];
+
+            // ── Helper: sanitize text for jsPDF (WinAnsi encoding) ──
+            function pdfText(str) {
+                return str
+                    .replace(/\u2264/g, '<=')
+                    .replace(/\u2265/g, '>=')
+                    .replace(/\u2192/g, '->')
+                    .replace(/\u2190/g, '<-')
+                    .replace(/\u2014/g, '-')
+                    .replace(/\u2013/g, '-')
+                    .replace(/\u2019/g, "'")
+                    .replace(/\u2018/g, "'")
+                    .replace(/\u201c/g, '"')
+                    .replace(/\u201d/g, '"')
+                    .replace(/\u00d7/g, 'x');
             }
-            y += 8;
-            
-            doc.text(`Tableau appliqué: ${document.getElementById('detailTable').textContent}`, 20, y);
-            y += 15;
-            
-            doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text('Explication:', 20, y);
+
+            // ── Helper: draw rounded rect ──
+            function roundedRect(x, y, w, h, r, fillColor, strokeColor) {
+                if (fillColor) { doc.setFillColor(...fillColor); }
+                if (strokeColor) { doc.setDrawColor(...strokeColor); doc.setLineWidth(0.5); }
+                doc.roundedRect(x, y, w, h, r, r, fillColor && strokeColor ? 'FD' : (fillColor ? 'F' : 'S'));
+            }
+
+            // ── Helper: add footer to current page ──
+            function addFooter() {
+                const pageNum = doc.internal.getNumberOfPages();
+                doc.setFontSize(7);
+                doc.setTextColor(160, 160, 160);
+                doc.text(pdfText(`Classification DESP — Directive 2014/68/UE`), margin, pageH - 8);
+                doc.text(`Page ${pageNum}`, pageW - margin, pageH - 8, { align: 'right' });
+                doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, pageW / 2, pageH - 8, { align: 'center' });
+                // Thin line above footer
+                doc.setDrawColor(220, 220, 220);
+                doc.setLineWidth(0.3);
+                doc.line(margin, pageH - 13, pageW - margin, pageH - 13);
+            }
+
+            // ── Helper: check page break ──
+            function checkPage(needed) {
+                if (y + needed > pageH - 20) {
+                    addFooter();
+                    doc.addPage();
+                    y = margin;
+                }
+            }
+
+            // ===========================
+            // PAGE 1 — Header banner
+            // ===========================
+            doc.setFillColor(17, 24, 39);
+            doc.rect(0, 0, pageW, 38, 'F');
+
+            doc.setFontSize(18);
+            doc.setTextColor(255, 255, 255);
+            doc.text('Classification DESP', margin, 16);
+
+            doc.setFontSize(9);
+            doc.setTextColor(180, 190, 210);
+            doc.text(pdfText('Directive 2014/68/UE — Équipements sous pression'), margin, 24);
+            doc.text(`Rapport du ${new Date().toLocaleDateString('fr-FR')}`, margin, 31);
+
+            // ===========================
+            // Classification result badge
+            // ===========================
+            y = 48;
+            const badgeH = 28;
+            roundedRect(margin, y, contentW, badgeH, 3, catColor.bg, catColor.border);
+
+            doc.setFontSize(9);
+            doc.setTextColor(...catColor.text);
+            doc.text('RÉSULTAT DE CLASSIFICATION', margin + 6, y + 9);
+
+            doc.setFontSize(16);
+            doc.setTextColor(...catColor.text);
+            doc.text(state.finalCategory || 'N/A', margin + 6, y + 22);
+
+            // Table applied — right aligned
+            const tableStr = document.getElementById('detailTable').textContent;
+            doc.setFontSize(9);
+            doc.setTextColor(100, 100, 100);
+            doc.text(tableStr, pageW - margin - 6, y + 16, { align: 'right' });
+
+            y += badgeH + 10;
+
+            // ===========================
+            // Parameters table
+            // ===========================
+            doc.setFontSize(11);
+            doc.setTextColor(17, 24, 39);
+            doc.text('Paramètres de l\'équipement', margin, y);
             y += 6;
-            
+
+            // Table drawing
+            const rows = [
+                ['Type d\'équipement', state.equipmentType === 'vessel' ? 'Récipient' : 'Tuyauterie'],
+                ['Type de fluide', state.fluidType === 'gas' ? 'Gaz' : 'Liquide'],
+                ['Groupe de fluide', state.fluidGroup === 'group1' ? 'Groupe 1 (dangereux)' : 'Groupe 2 (non dangereux)'],
+                ['Pression maximale (PS)', `${state.ps} bar`]
+            ];
+
+            if (state.equipmentType === 'vessel') {
+                rows.push(['Volume (V)', `${state.v} litres`]);
+                rows.push(['Produit PS × V', `${(state.ps * state.v).toFixed(2)} bar.L`]);
+            } else {
+                rows.push(['Dimension nominale (DN)', `DN ${state.dn}`]);
+                rows.push(['Produit PS × DN', `${(state.ps * state.dn).toFixed(2)}`]);
+            }
+
+            const colLabelW = 65;
+            const colValueW = contentW - colLabelW;
+            const rowH = 8;
+
+            for (let i = 0; i < rows.length; i++) {
+                const ry = y + i * rowH;
+                // Alternating row background
+                if (i % 2 === 0) {
+                    doc.setFillColor(248, 249, 250);
+                    doc.rect(margin, ry, contentW, rowH, 'F');
+                }
+                doc.setFontSize(9);
+                doc.setTextColor(100, 100, 100);
+                doc.text(rows[i][0], margin + 4, ry + 5.5);
+                doc.setTextColor(17, 24, 39);
+                doc.text(rows[i][1], margin + colLabelW + 4, ry + 5.5);
+            }
+
+            // Table border
+            doc.setDrawColor(220, 220, 220);
+            doc.setLineWidth(0.3);
+            doc.rect(margin, y, contentW, rows.length * rowH);
+            // Vertical separator
+            doc.line(margin + colLabelW, y, margin + colLabelW, y + rows.length * rowH);
+
+            y += rows.length * rowH + 10;
+
+            // ===========================
+            // Explanation section
+            // ===========================
             const explanation = document.getElementById('explanationText').textContent;
-            const splitExplanation = doc.splitTextToSize(explanation, 170);
-            doc.text(splitExplanation, 20, y);
-            y += (splitExplanation.length * 5) + 10;
-            
-            doc.setFontSize(8);
-            doc.setTextColor(150);
-            doc.text(`Document généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`, 20, 280);
-            
+            if (explanation) {
+                checkPage(30);
+                doc.setFontSize(11);
+                doc.setTextColor(17, 24, 39);
+                doc.text('Explication de la classification', margin, y);
+                y += 5;
+
+                // Light blue info box
+                doc.setFontSize(8.5);
+                doc.setTextColor(30, 58, 138);
+                const splitExp = doc.splitTextToSize(pdfText(explanation), contentW - 12);
+                const expBoxH = splitExp.length * 4.5 + 8;
+                roundedRect(margin, y, contentW, expBoxH, 2, [239, 246, 255], [147, 197, 253]);
+                doc.text(splitExp, margin + 6, y + 6);
+                y += expBoxH + 10;
+            }
+
+            // ===========================
+            // Zone Diagram
+            // ===========================
+            const canvas = document.getElementById('zoneChart');
+            const chartSection = document.getElementById('chartSection');
+            if (canvas && chartSection && !chartSection.classList.contains('hidden')) {
+                try {
+                    const imgData = canvas.toDataURL('image/png', 1.0);
+                    const imgW = contentW;
+                    const imgH = (canvas.height / canvas.width) * imgW;
+                    // Cap to max usable height on a single page (leave room for title + footer)
+                    const maxImgH = pageH - margin * 2 - 20;
+                    const finalImgH = Math.min(imgH, maxImgH);
+
+                    // Check space for title + image together to avoid orphaned title
+                    checkPage(finalImgH + 14);
+
+                    doc.setFontSize(11);
+                    doc.setTextColor(17, 24, 39);
+                    doc.text('Diagramme des zones réglementaires', margin, y);
+                    y += 4;
+
+                    // Light border around image
+                    doc.setDrawColor(220, 220, 220);
+                    doc.setLineWidth(0.3);
+                    doc.rect(margin, y, imgW, finalImgH);
+                    doc.addImage(imgData, 'PNG', margin, y, imgW, finalImgH);
+                    y += finalImgH + 5;
+
+                    // Chart reclassification note
+                    const chartNote = document.getElementById('chartNote');
+                    if (chartNote && !chartNote.classList.contains('hidden')) {
+                        doc.setFontSize(7.5);
+                        doc.setTextColor(180, 83, 9);
+                        const noteText = pdfText(chartNote.textContent);
+                        const splitNote = doc.splitTextToSize(noteText, contentW - 8);
+                        roundedRect(margin, y, contentW, splitNote.length * 3.5 + 6, 2, [255, 251, 235], [253, 186, 116]);
+                        doc.text(splitNote, margin + 4, y + 4.5);
+                        y += splitNote.length * 3.5 + 10;
+                    } else {
+                        y += 5;
+                    }
+                } catch (e) {
+                    console.warn('Could not embed chart in PDF:', e);
+                    y += 5;
+                }
+            }
+
+            // ===========================
+            // Decision Tree
+            // ===========================
+            const tableNumInt = getTableNumber(tableStr);
+            const param = state.equipmentType === 'vessel' ? state.v : state.dn;
+            if (tableNumInt) {
+                // Recalculate to get reclassification info
+                let origCat = '';
+                let wasCat = false;
+                const calcFn = { 1: calculateTable1, 2: calculateTable2, 3: calculateTable3, 4: calculateTable4,
+                                 6: calculateTable6, 7: calculateTable7, 8: calculateTable8, 9: calculateTable9 };
+                if (calcFn[tableNumInt]) {
+                    origCat = calcFn[tableNumInt](state.ps, param).category;
+                    wasCat = origCat !== state.finalCategory;
+                }
+
+                const treeNodes = buildDecisionTree(tableNumInt, state.ps, param, wasCat, origCat, state.finalCategory);
+
+                if (treeNodes && treeNodes.length > 0) {
+                    checkPage(14);
+                    doc.setFontSize(11);
+                    doc.setTextColor(17, 24, 39);
+                    doc.text('Arbre de décision', margin, y);
+                    y += 6;
+
+                    const nodeColors = {
+                        info:     { bg: [239, 246, 255], border: [147, 197, 253], icon: [59, 130, 246],  text: [30, 58, 138] },
+                        skip:     { bg: [249, 250, 251], border: [229, 231, 235], icon: [156, 163, 175], text: [107, 114, 128] },
+                        decisive: { bg: [220, 252, 231], border: [74, 222, 128],  icon: [22, 163, 74],   text: [20, 83, 45] },
+                        result:   { bg: catColor.bg,     border: catColor.border,  icon: catColor.text,   text: catColor.text },
+                        warning:  { bg: [255, 251, 235], border: [253, 186, 116], icon: [217, 119, 6],   text: [146, 64, 14] }
+                    };
+
+                    const nodeIcons = { info: 'i', skip: 'x', decisive: 'O', result: '*', warning: '!' };
+                    const baseNodeH = 9;
+                    const iconColW = 8;
+
+                    for (let i = 0; i < treeNodes.length; i++) {
+                        const node = treeNodes[i];
+                        const nc = nodeColors[node.type] || nodeColors.info;
+                        const isDecisive = node.type === 'decisive' || node.type === 'result';
+
+                        // Sanitize text for jsPDF WinAnsi encoding
+                        const safeLabel = pdfText(node.label);
+                        const safeValue = pdfText(node.value);
+
+                        const textStartX = margin + iconColW + 3;
+                        const textAreaW = contentW - iconColW - 7;
+
+                        // Measure label width at correct font size (8)
+                        doc.setFontSize(8);
+                        if (isDecisive) doc.setFont(undefined, 'bold');
+                        else doc.setFont(undefined, 'normal');
+                        const labelW = doc.getTextWidth(safeLabel);
+
+                        // Measure value width at its font size (7.5)
+                        doc.setFontSize(7.5);
+                        doc.setFont(undefined, 'normal');
+                        const valueW = doc.getTextWidth(safeValue);
+
+                        // Determine layout: same line or second line
+                        const gapBetween = 6;
+                        const availableForValue = textAreaW - labelW - gapBetween;
+                        const valueSameLine = availableForValue >= valueW;
+
+                        let nodeH = baseNodeH;
+                        let valueLines = [safeValue];
+                        if (!valueSameLine) {
+                            valueLines = doc.splitTextToSize(safeValue, textAreaW);
+                            nodeH = 8 + valueLines.length * 3.5;
+                            if (nodeH < baseNodeH) nodeH = baseNodeH;
+                        }
+
+                        checkPage(nodeH + 4);
+
+                        // Connector line
+                        if (i > 0) {
+                            doc.setDrawColor(200, 200, 200);
+                            doc.setLineWidth(0.4);
+                            doc.line(margin + iconColW / 2, y - 2, margin + iconColW / 2, y);
+                        }
+
+                        // Node background with dynamic height
+                        roundedRect(margin, y, contentW, nodeH, 1.5, nc.bg, nc.border);
+
+                        // Icon circle
+                        doc.setFillColor(...nc.icon);
+                        doc.circle(margin + iconColW / 2, y + nodeH / 2, 2.5, 'F');
+                        doc.setFontSize(6);
+                        doc.setTextColor(255, 255, 255);
+                        doc.text(nodeIcons[node.type] || '-', margin + iconColW / 2, y + nodeH / 2 + 1, { align: 'center' });
+
+                        // Label
+                        doc.setFontSize(8);
+                        doc.setTextColor(...nc.text);
+                        if (isDecisive) doc.setFont(undefined, 'bold');
+                        else doc.setFont(undefined, 'normal');
+                        doc.text(safeLabel, textStartX, y + 4);
+
+                        // Value
+                        doc.setFontSize(7.5);
+                        doc.setFont(undefined, 'normal');
+                        doc.setTextColor(...nc.text);
+                        if (valueSameLine) {
+                            doc.text(safeValue, margin + contentW - 4, y + 4, { align: 'right' });
+                        } else {
+                            doc.text(valueLines, textStartX, y + 7.5);
+                        }
+
+                        y += nodeH + 2;
+                    }
+                    y += 6;
+                }
+
+                // ===========================
+                // Proximity Indicators
+                // ===========================
+                const proxData = computeProximity(tableNumInt, state.ps, param, state.finalCategory);
+                if (proxData && (proxData.lowerThreshold || proxData.upperThreshold)) {
+                    checkPage(14);
+                    doc.setFontSize(11);
+                    doc.setTextColor(17, 24, 39);
+                    doc.text('Indicateurs de proximité', margin, y);
+                    y += 6;
+
+                    // Current value display
+                    const productStr = `${proxData.productLabel} = ${proxData.product.toFixed(2)} ${proxData.productUnit}`;
+                    doc.setFontSize(9);
+                    doc.setTextColor(17, 24, 39);
+                    doc.text(pdfText(`Valeur actuelle : ${productStr}`), margin + 4, y + 4);
+                    y += 8;
+
+                    // Progress bar
+                    const barX = margin + 4;
+                    const barW = contentW - 8;
+                    const barH = 8;
+
+                    // Track
+                    roundedRect(barX, y, barW, barH, 2, [243, 244, 246], [229, 231, 235]);
+
+                    // Fill
+                    const fillW = Math.max(2, barW * proxData.percentage / 100);
+                    doc.setFillColor(...catColor.bg);
+                    doc.roundedRect(barX, y, fillW, barH, 2, 2, 'F');
+                    doc.setDrawColor(...catColor.border);
+                    doc.setLineWidth(0.3);
+                    doc.roundedRect(barX, y, fillW, barH, 2, 2, 'S');
+
+                    // Marker
+                    const markerX = barX + fillW;
+                    doc.setFillColor(17, 24, 39);
+                    doc.circle(markerX, y + barH / 2, 2, 'F');
+                    doc.setFillColor(255, 255, 255);
+                    doc.circle(markerX, y + barH / 2, 1, 'F');
+
+                    y += barH + 3;
+
+                    // Threshold labels under bar
+                    doc.setFontSize(7);
+                    doc.setTextColor(130, 130, 130);
+                    if (proxData.lowerThreshold) {
+                        doc.text(pdfText(`${proxData.lowerThreshold.below} (${proxData.lowerThreshold.value})`), barX, y + 3);
+                    } else {
+                        doc.text('0', barX, y + 3);
+                    }
+
+                    doc.setTextColor(...catColor.text);
+                    doc.setFontSize(7.5);
+                    doc.text(pdfText(proxData.category), barX + barW / 2, y + 3, { align: 'center' });
+
+                    doc.setTextColor(130, 130, 130);
+                    doc.setFontSize(7);
+                    if (proxData.upperThreshold) {
+                        doc.text(pdfText(`${proxData.upperThreshold.above} (${proxData.upperThreshold.value})`), barX + barW, y + 3, { align: 'right' });
+                    }
+                    y += 8;
+
+                    // Margin info cards
+                    const cardW = (contentW - 10) / 2;
+                    const cardH = 18;
+
+                    if (proxData.lowerDistance !== null) {
+                        roundedRect(margin, y, cardW, cardH, 2, [248, 249, 250], [229, 231, 235]);
+                        doc.setFontSize(7);
+                        doc.setTextColor(100, 100, 100);
+                        doc.text('Marge inférieure', margin + 4, y + 5);
+                        doc.setFontSize(10);
+                        doc.setTextColor(17, 24, 39);
+                        doc.text(`${proxData.lowerDistance.toFixed(2)} ${proxData.productUnit}`, margin + 4, y + 11);
+                        doc.setFontSize(6.5);
+                        doc.setTextColor(130, 130, 130);
+                        doc.text(pdfText(`Au-dessus du seuil ${proxData.lowerThreshold.value}`), margin + 4, y + 15.5);
+                    }
+
+                    if (proxData.upperDistance !== null) {
+                        const cx = margin + cardW + 10;
+                        roundedRect(cx, y, cardW, cardH, 2, [248, 249, 250], [229, 231, 235]);
+                        doc.setFontSize(7);
+                        doc.setTextColor(100, 100, 100);
+                        doc.text('Marge supérieure', cx + 4, y + 5);
+                        doc.setFontSize(10);
+                        doc.setTextColor(17, 24, 39);
+                        doc.text(`${proxData.upperDistance.toFixed(2)} ${proxData.productUnit}`, cx + 4, y + 11);
+                        doc.setFontSize(6.5);
+                        doc.setTextColor(130, 130, 130);
+                        doc.text(pdfText(`Avant le seuil ${proxData.upperThreshold.value}`), cx + 4, y + 15.5);
+                    }
+
+                    y += cardH + 8;
+                }
+            }
+
+            // ===========================
+            // Special cases note
+            // ===========================
+            if (state.specialCases && state.specialCases.length > 0) {
+                checkPage(20);
+                doc.setFontSize(11);
+                doc.setTextColor(17, 24, 39);
+                doc.text('Cas particuliers appliqués', margin, y);
+                y += 5;
+
+                const specialLabels = {
+                    'unstable_gas': 'Gaz instable',
+                    'unstable_gas_piping': 'Gaz instable (tuyauterie)',
+                    'portable_extinguisher': 'Extincteur portable',
+                    'breathing_equipment': 'Bouteille pour équipement respiratoire',
+                    'high_temp_piping': 'Température > 350°C'
+                };
+
+                for (const sc of state.specialCases) {
+                    const label = specialLabels[sc] || sc;
+                    checkPage(8);
+                    roundedRect(margin, y, contentW, 7, 1.5, [255, 251, 235], [253, 186, 116]);
+                    doc.setFontSize(8);
+                    doc.setTextColor(146, 64, 14);
+                    doc.text(pdfText(`/!\\ ${label}`), margin + 4, y + 5);
+                    y += 9;
+                }
+                y += 4;
+            }
+
+            // ===========================
+            // Regulatory reference
+            // ===========================
+            checkPage(18);
+            doc.setDrawColor(220, 220, 220);
+            doc.setLineWidth(0.2);
+            doc.line(margin, y, pageW - margin, y);
+            y += 5;
+            doc.setFontSize(7);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Référence réglementaire : Directive 2014/68/UE du Parlement européen et du Conseil relative à l\'harmonisation', margin, y);
+            y += 3.5;
+            doc.text('des législations des États membres concernant la mise à disposition sur le marché des équipements sous pression.', margin, y);
+            y += 3.5;
+            doc.text('Ce document est généré à titre indicatif et ne se substitue pas à une analyse réglementaire complète.', margin, y);
+
+            // Add footer to last page
+            addFooter();
+
             doc.save('classification_desp.pdf');
         }
 
