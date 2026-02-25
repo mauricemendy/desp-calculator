@@ -426,8 +426,8 @@
         .result-art43 .result-title { color: var(--color-info); }
         .result-cat1 { border-color: var(--color-success); }
         .result-cat1 .result-title { color: var(--color-success); }
-        .result-cat2 { border-color: var(--color-warning); }
-        .result-cat2 .result-title { color: var(--color-warning); }
+        .result-cat2 { border-color: #16A34A; }
+        .result-cat2 .result-title { color: #16A34A; }
         .result-cat3 { border-color: var(--color-orange); }
         .result-cat3 .result-title { color: var(--color-orange); }
         .result-cat4 { border-color: var(--color-error); }
@@ -761,6 +761,30 @@
         }
         .tree-node.decisive::after {
             background: var(--color-primary) !important;
+        }
+        .tree-node.not-reached {
+            opacity: 0.4;
+        }
+        .tree-node-icon.dimmed {
+            background: #F3F4F6;
+            color: #D1D5DB;
+        }
+        .tree-node.result-node {
+            background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+            border: 2px solid var(--color-primary);
+            border-radius: var(--radius-md);
+            margin-top: var(--space-2);
+        }
+        .tree-node.result-node .tree-node-icon {
+            background: var(--color-primary);
+            color: white;
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+        }
+        .tree-node.result-node .tree-node-value {
+            color: var(--color-primary-dark);
+            font-size: 16px;
         }
 
         /* HISTORY SECTION */
@@ -2149,7 +2173,7 @@
                 'Non soumis':   { bg: [243,244,246], border: [156,163,175], text: [107,114,128] },
                 'Article 4§3':  { bg: [229,231,235], border: [156,163,175], text: [107,114,128] },
                 'Catégorie I':  { bg: [204,251,241], border: [13,148,136],  text: [15,118,110]  },
-                'Catégorie II': { bg: [254,243,199], border: [217,119,6],   text: [146,64,14]   },
+                'Catégorie II': { bg: [220,252,231], border: [22,163,74],   text: [21,128,61]   },
                 'Catégorie III':{ bg: [255,237,213], border: [249,115,22],  text: [194,65,12]   },
                 'Catégorie IV': { bg: [254,226,226], border: [220,38,38],   text: [153,27,27]   }
             };
@@ -2312,6 +2336,13 @@
             }
 
             // ===========================
+            // PAGE BREAK before visual sections
+            // ===========================
+            addFooter();
+            doc.addPage();
+            y = margin;
+
+            // ===========================
             // Zone Diagram
             // ===========================
             const canvas = document.getElementById('zoneChart');
@@ -2385,14 +2416,15 @@
                     y += 6;
 
                     const nodeColors = {
-                        info:     { bg: [239, 246, 255], border: [147, 197, 253], icon: [59, 130, 246],  text: [30, 58, 138] },
-                        skip:     { bg: [249, 250, 251], border: [229, 231, 235], icon: [156, 163, 175], text: [107, 114, 128] },
-                        decisive: { bg: [220, 252, 231], border: [74, 222, 128],  icon: [22, 163, 74],   text: [20, 83, 45] },
-                        result:   { bg: catColor.bg,     border: catColor.border,  icon: catColor.text,   text: catColor.text },
-                        warning:  { bg: [255, 251, 235], border: [253, 186, 116], icon: [217, 119, 6],   text: [146, 64, 14] }
+                        info:        { bg: [239, 246, 255], border: [147, 197, 253], icon: [59, 130, 246],  text: [30, 58, 138] },
+                        skip:        { bg: [249, 250, 251], border: [229, 231, 235], icon: [156, 163, 175], text: [107, 114, 128] },
+                        decisive:    { bg: [220, 252, 231], border: [74, 222, 128],  icon: [22, 163, 74],   text: [20, 83, 45] },
+                        result:      { bg: catColor.bg,     border: catColor.border,  icon: catColor.text,   text: catColor.text },
+                        warning:     { bg: [255, 251, 235], border: [253, 186, 116], icon: [217, 119, 6],   text: [146, 64, 14] },
+                        not_reached: { bg: [249, 250, 251], border: [243, 244, 246], icon: [209, 213, 219], text: [180, 180, 180] }
                     };
 
-                    const nodeIcons = { info: 'i', skip: 'x', decisive: 'O', result: '*', warning: '!' };
+                    const nodeIcons = { info: 'i', skip: 'x', decisive: 'O', result: '*', warning: '!', not_reached: 'o' };
                     const baseNodeH = 9;
                     const iconColW = 8;
 
@@ -2667,7 +2699,7 @@
             'Non soumis': { fill: '#F3F4F6', stroke: '#9CA3AF', text: '#6B7280' },
             'Article 4§3': { fill: '#E5E7EB', stroke: '#9CA3AF', text: '#6B7280' },
             'Catégorie I': { fill: '#CCFBF1', stroke: '#0D9488', text: '#0F766E' },
-            'Catégorie II': { fill: '#FEF3C7', stroke: '#D97706', text: '#92400E' },
+            'Catégorie II': { fill: '#DCFCE7', stroke: '#16A34A', text: '#15803D' },
             'Catégorie III': { fill: '#FFEDD5', stroke: '#F97316', text: '#C2410C' },
             'Catégorie IV': { fill: '#FEE2E2', stroke: '#DC2626', text: '#991B1B' }
         };
@@ -2689,6 +2721,57 @@
                  title: 'Tableau 8', subtitle: 'Tuyauteries — Liquide — Groupe 2' },
             9: { xLabel: 'DN', yLabel: 'PS (bar)', xMin: 1, xMax: 2000, yMin: 0.5, yMax: 10000,
                  title: 'Tableau 9', subtitle: 'Tuyauteries — Liquide — Groupe 1' }
+        };
+
+        // Boundary curves for each table (visible limits on the diagram)
+        const tableBoundaries = {
+            1: [
+                { type: 'vertical', value: 1, label: 'V=1' },
+                { type: 'hyperbola', product: 50, label: 'PS\u00d7V=50' },
+                { type: 'hyperbola', product: 1000, label: 'PS\u00d7V=1000' },
+                { type: 'horizontal', value: 200, label: 'PS=200' },
+                { type: 'horizontal', value: 1000, label: 'PS=1000' }
+            ],
+            2: [
+                { type: 'vertical', value: 1, label: 'V=1' },
+                { type: 'hyperbola', product: 25, label: 'PS\u00d7V=25' },
+                { type: 'hyperbola', product: 200, label: 'PS\u00d7V=200' },
+                { type: 'hyperbola', product: 1000, label: 'PS\u00d7V=1000' },
+                { type: 'hyperbola', product: 3000, label: 'PS\u00d7V=3000' },
+                { type: 'horizontal', value: 3000, label: 'PS=3000' }
+            ],
+            3: [
+                { type: 'vertical', value: 1, label: 'V=1' },
+                { type: 'hyperbola', product: 200, label: 'PS\u00d7V=200' },
+                { type: 'hyperbola', product: 10000, label: 'PS\u00d7V=10000' },
+                { type: 'horizontal', value: 500, label: 'PS=500' }
+            ],
+            4: [
+                { type: 'horizontal', value: 10, label: 'PS=10' },
+                { type: 'horizontal', value: 500, label: 'PS=500' },
+                { type: 'hyperbola', product: 10000, label: 'PS\u00d7V=10000' }
+            ],
+            6: [
+                { type: 'vertical', value: 25, label: 'DN=25' },
+                { type: 'hyperbola', product: 1000, label: 'PS\u00d7DN=1000' },
+                { type: 'hyperbola', product: 2500, label: 'PS\u00d7DN=2500' }
+            ],
+            7: [
+                { type: 'vertical', value: 32, label: 'DN=32' },
+                { type: 'hyperbola', product: 1000, label: 'PS\u00d7DN=1000' },
+                { type: 'hyperbola', product: 3500, label: 'PS\u00d7DN=3500' }
+            ],
+            8: [
+                { type: 'vertical', value: 25, label: 'DN=25' },
+                { type: 'horizontal', value: 10, label: 'PS=10' },
+                { type: 'horizontal', value: 500, label: 'PS=500' },
+                { type: 'hyperbola', product: 2000, label: 'PS\u00d7DN=2000' }
+            ],
+            9: [
+                { type: 'horizontal', value: 10, label: 'PS=10' },
+                { type: 'horizontal', value: 500, label: 'PS=500' },
+                { type: 'hyperbola', product: 5000, label: 'PS\u00d7DN=5000' }
+            ]
         };
 
         function classifyPoint(tableNum, ps, param) {
@@ -2853,6 +2936,90 @@
                 const py = yToPixel(val);
                 ctx.textAlign = 'right';
                 ctx.fillText(val >= 1000 ? (val/1000) + 'k' : val.toString(), margin.left - 8, py + 4);
+            }
+
+            // ── Draw boundary curves (threshold lines between categories) ──
+            const boundaries = tableBoundaries[tableNum];
+            if (boundaries) {
+                for (const b of boundaries) {
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.55)';
+                    ctx.lineWidth = 1.8;
+                    ctx.setLineDash([8, 4]);
+
+                    if (b.type === 'horizontal') {
+                        if (b.value >= config.yMin && b.value <= config.yMax) {
+                            const py = yToPixel(b.value);
+                            ctx.beginPath();
+                            ctx.moveTo(margin.left, py);
+                            ctx.lineTo(margin.left + plotW, py);
+                            ctx.stroke();
+                            // Label
+                            ctx.font = 'bold 9px -apple-system, sans-serif';
+                            ctx.textAlign = 'right';
+                            const tw = ctx.measureText(b.label).width;
+                            ctx.fillStyle = 'rgba(255,255,255,0.85)';
+                            ctx.fillRect(margin.left + plotW - tw - 8, py - 12, tw + 6, 13);
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                            ctx.fillText(b.label, margin.left + plotW - 5, py - 2);
+                        }
+                    } else if (b.type === 'vertical') {
+                        if (b.value >= config.xMin && b.value <= config.xMax) {
+                            const px = xToPixel(b.value);
+                            ctx.beginPath();
+                            ctx.moveTo(px, margin.top);
+                            ctx.lineTo(px, margin.top + plotH);
+                            ctx.stroke();
+                            // Label
+                            ctx.font = 'bold 9px -apple-system, sans-serif';
+                            ctx.textAlign = 'left';
+                            const tw = ctx.measureText(b.label).width;
+                            ctx.fillStyle = 'rgba(255,255,255,0.85)';
+                            ctx.fillRect(px + 3, margin.top + 4, tw + 6, 13);
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                            ctx.fillText(b.label, px + 6, margin.top + 14);
+                        }
+                    } else if (b.type === 'hyperbola') {
+                        // PS * param = constant → straight line in log-log space
+                        ctx.beginPath();
+                        let started = false;
+                        const steps = 300;
+                        for (let s = 0; s <= steps; s++) {
+                            const lx = logXMin + (s / steps) * (logXMax - logXMin);
+                            const x = Math.pow(10, lx);
+                            const psVal = b.product / x;
+                            if (psVal < config.yMin || psVal > config.yMax) {
+                                if (started) { ctx.stroke(); ctx.beginPath(); started = false; }
+                                continue;
+                            }
+                            const px = xToPixel(x);
+                            const pyVal = yToPixel(psVal);
+                            if (!started) { ctx.moveTo(px, pyVal); started = true; }
+                            else { ctx.lineTo(px, pyVal); }
+                        }
+                        if (started) ctx.stroke();
+                        // Label at curve midpoint
+                        const midLx = (logXMin + logXMax) / 2;
+                        const midX = Math.pow(10, midLx);
+                        const midPS = b.product / midX;
+                        if (midPS >= config.yMin && midPS <= config.yMax) {
+                            const lx2 = xToPixel(midX);
+                            const ly2 = yToPixel(midPS);
+                            ctx.font = 'bold 9px -apple-system, sans-serif';
+                            ctx.textAlign = 'center';
+                            const tw = ctx.measureText(b.label).width;
+                            // Rotated label along the curve (slope -1 in log-log → -45°)
+                            ctx.save();
+                            ctx.translate(lx2, ly2);
+                            ctx.rotate(-Math.PI / 4);
+                            ctx.fillStyle = 'rgba(255,255,255,0.85)';
+                            ctx.fillRect(-tw / 2 - 3, -11, tw + 6, 13);
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                            ctx.fillText(b.label, 0, -1);
+                            ctx.restore();
+                        }
+                    }
+                    ctx.setLineDash([]);
+                }
             }
 
             // Draw marker (red crosshair) if valid
@@ -3179,26 +3346,34 @@
                 value: 'Tableau ' + tableNum + ' \u2014 ' + (chartConfigs[tableNum] ? chartConfigs[tableNum].subtitle : '')
             });
 
-            // Process decision checks
+            // Process decision checks — show ALL checks, not just up to decisive
             var decided = false;
             for (var i = 0; i < checks.length; i++) {
-                if (decided) break;
                 var check = checks[i];
-                var result = check.test();
 
-                if (result) {
+                if (decided) {
+                    // Show remaining checks as not evaluated
                     nodes.push({
-                        type: 'decisive',
+                        type: 'not_reached',
                         label: check.label,
-                        value: 'Oui \u2192 ' + check.yesResult
+                        value: '(non \u00e9valu\u00e9) \u2192 ' + check.yesResult
                     });
-                    decided = true;
                 } else {
-                    nodes.push({
-                        type: 'skip',
-                        label: check.label,
-                        value: 'Non \u2192 v\u00e9rification suivante'
-                    });
+                    var result = check.test();
+                    if (result) {
+                        nodes.push({
+                            type: 'decisive',
+                            label: check.label,
+                            value: 'Oui \u2192 ' + check.yesResult
+                        });
+                        decided = true;
+                    } else {
+                        nodes.push({
+                            type: 'skip',
+                            label: check.label,
+                            value: 'Non \u2192 v\u00e9rification suivante'
+                        });
+                    }
                 }
             }
 
@@ -3236,8 +3411,7 @@
 
             for (var i = 0; i < nodes.length; i++) {
                 var node = nodes[i];
-                var isDecisive = node.type === 'decisive';
-                var iconClass, icon;
+                var iconClass, icon, nodeClass = '';
 
                 switch (node.type) {
                     case 'info':
@@ -3251,21 +3425,28 @@
                     case 'decisive':
                         iconClass = 'pass';
                         icon = '\u2713';
+                        nodeClass = ' decisive';
                         break;
                     case 'result':
                         iconClass = 'result';
                         icon = '\u2605';
+                        nodeClass = ' result-node';
                         break;
                     case 'warning':
                         iconClass = 'warning';
                         icon = '\u26a0';
+                        break;
+                    case 'not_reached':
+                        iconClass = 'dimmed';
+                        icon = '\u25cb';
+                        nodeClass = ' not-reached';
                         break;
                     default:
                         iconClass = 'info';
                         icon = '\u2022';
                 }
 
-                html += '<div class="tree-node' + (isDecisive ? ' decisive' : '') + '">' +
+                html += '<div class="tree-node' + nodeClass + '">' +
                     '<div class="tree-node-icon ' + iconClass + '">' + icon + '</div>' +
                     '<div class="tree-node-content">' +
                     '<div class="tree-node-label">' + node.label + '</div>' +
